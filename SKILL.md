@@ -21,6 +21,8 @@ description: >
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
   version: "2.7.0"
+  maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
+  workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
     2.7.0 (08.03.2026): §4.2 state_class von EMPFOHLEN auf PFLICHT hochgestuft (verifiziert:
