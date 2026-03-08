@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.13.0"
+  version: "2.14.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.14.0 (08.03.2026): §2.3b Grenzwert-Widerspruch behoben (100→50 KB). §9.4 Querverweis §18.3→§17.4 korrigiert. §17.2 Tabelle: instanzspezifische Eintrags-Zahlen als Beispiel markiert, kontextlosen MQTT-Bug-Kommentar entfernt.
     2.13.0 (08.03.2026): §14–§21 H3-Subsektionsnummern korrigiert nach Restrukturierung in v2.12.0 (16.x→14.x, 22.x→15.x, 17.x→16.x, 20.x→17.x, 19.x→18.x, 21.x→19.x, 14.1→21.1).
     2.12.0 (08.03.2026): Skill-Restrukturierung — §§14-21 neu geordnet nach Verwendungshäufigkeit. §18 (Supervisor-API) als eigenständige Sektion entfernt, Kernaussage in §1.7 integriert.
     2.11.0 (08.03.2026): §0 Pflicht­regel ergänzt — Live abrufen statt fragen: prüfbaren Zustand immer per API verifizieren, nie den Nutzer fragen.
@@ -240,7 +241,7 @@ const content = d.service_response.stdout;
 
 ### 2.3b write_file — HTTP-500-Limit bei großen Dateien (KRITISCH, verifiziert 07.03.2026)
 
-`write_file` via REST (bash_tool curl oder Browser-Fetch) **schlägt bei Payloads >~100 KB
+`write_file` via REST (bash_tool curl oder Browser-Fetch) **schlägt bei Payloads >~50 KB
 mit HTTP 500 fehl** — ohne aussagekräftige Fehlermeldung.
 
 Betroffen sind insbesondere:
@@ -907,7 +908,7 @@ Body: {"handler": "schedule"}
 
 **Einzige Wege (verifiziert HA 2026.3.1):**
 - HA-UI: Einstellungen → Geräte & Dienste → Helfer → Zeitplan erstellen
-- WebSocket-API via `run_python` auf localhost — **funktioniert** (§17.1, §18.3)
+- WebSocket-API via `run_python` auf localhost — **funktioniert** (§17.1, §17.4)
 
 `schedule` hat **keinen `config_flow.py`** und keinen REST-Endpoint — nutzt `DictStorageCollectionWebsocket`.
 WebSocket via Nabu Casa: HTTP 403.
@@ -1226,8 +1227,8 @@ ws://localhost:8123/api/websocket
 
 | Command | Beschreibung | Laufzeit | Besonderheit |
 |---------|-------------|----------|--------------|
-| `config/entity_registry/list` | 1960 Einträge inkl. disabled, area_id + labels | ~39ms | Schneller als `.storage/` lesen; MQTT-Bug existiert nicht |
-| `config/entity_registry/list_for_display` | 1227 Einträge nur enabled, kompakte Keys | ~13ms | Schnellster Registry-Zugriff; Keys: `ei`, `pl`, `lb`, `di` |
+| `config/entity_registry/list` | Alle Einträge inkl. disabled, area_id + labels (Beispiel: ~1960) | ~39ms | Schneller als `.storage/` lesen |
+| `config/entity_registry/list_for_display` | Nur enabled Einträge, kompakte Keys (Beispiel: ~1227) | ~13ms | Schnellster Registry-Zugriff; Keys: `ei`, `pl`, `lb`, `di` |
 | `config/area_registry/list` | Areas inkl. temperature_entity_id, humidity_entity_id | — | Mehr Felder als `.storage/` direkt |
 | `config/label_registry/list` | Labels inkl. label_id, color, icon | — | — |
 | `get_states` | Alle States inkl. context-Feld | ~18ms | Kein Vorteil ggü. `GET /api/states` |
