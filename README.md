@@ -1,2 +1,4 @@
 # ha-betriebshandbuch
 HA-Betriebshandbuch für Claude-Instanzen — instanzunabhängiges Systemwissen für alle Home Assistant Installationen.
+TRIGGER THIS SKILL WHEN: - Lesen, Schreiben oder Debuggen von HA REST API Calls - Anlegen oder Ändern von Automationen, Scripts, Szenen, Template-Sensoren - Storage-Dateien (.storage/) lesen oder schreiben - Helper (input_boolean, input_select, timer, etc.) anlegen oder löschen - Recorder-Konfiguration oder Datenbankzugriff - YAML-Dateien (automations.yaml, template.yaml, scripts.yaml) editieren - Zombie-Entities bereinigen - Backup vor destruktiven Aktionen - Zigbee-Bulbs steuern (Farbwechsel, Ein-/Ausschalten) - Android Companion App next_alarm Sensor nutzen - Statistiken reparieren (sum-Reset, Energy-Dashboard-Fehler, DB-Direktzugriff)
+NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
