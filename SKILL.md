@@ -30,6 +30,27 @@ metadata:
     /config/zigbee2mqtt/configuration.yaml (verifiziert auf HA OS Add-on-Installs, §2.3).
     §22.2 Geräteumbenennung-Verhalten in Z2M dokumentiert.
     2.7.1 (08.03.2026): GitHub-basierter Skill-Load eingeführt.
+    2.7.0 (08.03.2026): §4.2 state_class von EMPFOHLEN auf PFLICHT hochgestuft (verifiziert:
+    ohne state_class kein Eintrag in statistics_meta, keine Langzeit-Statistiken).
+    §4.2 device_class-Spiegelung von Quellsensor als Regel ergänzt.
+    §4.3 Hinweis auf triggers:/actions: als empfohlene Syntax seit HA 2024.10 ergänzt
+    (Singular weiterhin gültig, kein deprecated).
+    §15 Anti-Pattern ergänzt: unit_of_measurement ohne state_class.
+    2.6.1 (08.03.2026): §21.2 doppelte Subquery entfernt — Verweis auf §19.2 statt Kopie.
+    2.6.0 (08.03.2026): §0 Skill-Pflegepflicht ergänzt.
+    2.4.1 (08.03.2026): §9.4 schedule WS-Commands live verifiziert (HA 2026.3.1) — DictStorageCollectionWebsocket, kein config_flow. schedule/create, /list, /delete dokumentiert.
+    2.4.0 (08.03.2026): §6.6 REST-Body auf Plural-Keys korrigiert (triggers/conditions/actions); Hinweis dass GET immer plural liefert. §6.9 unverifizierten HA-2026.3-Claim entfernt. §9.4 WebSocket-Aussage korrigiert: WS via Nabu Casa HTTP 403, kein Browser-Kontext verfügbar.
+    2.3.0 (08.03.2026): §2.7 EOF-Anker-Falle dokumentiert (letzte Zeile ohne trailing \n). §15 Anti-Pattern ergänzt. §19.5 WebSocket-Einschränkung korrigiert: generell HTTP 403 via Nabu Casa, nicht nur recorder. §20 neu: WebSocket-API — getestete Commands, defekte Commands, Protokoll-Muster.
+    2.2.0 (08.03.2026): §19 erweitert — Offset-Berechnung korrigiert (prev_sum - bad_sum, nicht state - bad_sum). §19.6 neu: sum vs. state Normalverhalten erklärt, §19.7 neu: Negative Balken im Energy-Dashboard — Diagnose-Checkliste, §19.2 Diagnoseschritt ergänzt: Sichtbarkeit im Dashboard vor Fix prüfen.
+    2.1.1 (08.03.2026): "TRIGGER THIS SKILL WHEN" ergänzt.
+    2.1.0 (08.03.2026): §19 neu — Statistiken reparieren (sum-Reset nach HA-Neustart).
+    Diagnose via SQL, Fix-Prozess via run_python shell_command + sqlite3 (verifiziert).
+    WebSocket-Erkenntnisse: recorder/import_statistics undokumentiert, via Nabu Casa
+    nicht erreichbar (HTTP 403). TRIGGER ergänzt: Statistiken reparieren.
+    2.0.0 (07.03.2026): Vollkonsolidierung + Live-Verifikation aller Kernaussagen.
+    §1.6 Logbook-Zeitformat korrigiert: +00:00 und .000Z beide gültig.
+    §2 Nummerierung repariert (2.3b → 2.4, Verschiebung 2.4–2.7 → 2.5–2.8).
+    1.6.1 (07.03.2026): §2.3 read_file → filename, write_file → path + content_b64.
 ---
 
 # HA-Betriebshandbuch für Claude-Instanzen
