@@ -20,36 +20,37 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.11.0"
+  version: "2.12.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.12.0 (08.03.2026): Skill-Restrukturierung — §§14-21 neu geordnet nach Verwendungshäufigkeit. §18 (Supervisor-API) als eigenständige Sektion entfernt, Kernaussage in §1.7 integriert.
     2.11.0 (08.03.2026): §0 Pflicht­regel ergänzt — Live abrufen statt fragen: prüfbaren Zustand immer per API verifizieren, nie den Nutzer fragen.
     2.10.0 (08.03.2026): §0 Verifikationsregel für destruktive Aktionen ergänzt — Schleifen-
     Netzwerkfehler erzeugen Falsch-Negative; Befunde immer isoliert verifizieren.
     2.9.0 (08.03.2026): §2.9 neu — python_script (Legacy) und pyscript (HACS) sind nicht
     standardmäßig vorhanden. Prüfpflicht via GET /api/services vor Nutzung. File-Schreiben
     außerhalb shell_command nicht möglich in Standard-HA (verifiziert RBO + LB-Instanz).
-    2.8.0 (08.03.2026): §22 neu — Zigbee2MQTT Add-on Konfigurationszugriff:
+    2.8.0 (08.03.2026): §15 neu — Zigbee2MQTT Add-on Konfigurationszugriff:
     Shadow-DOM verhindert UI-Zugriff → direkter Dateizugriff über
     /config/zigbee2mqtt/configuration.yaml (verifiziert auf HA OS Add-on-Installs, §2.3).
-    §22.2 Geräteumbenennung-Verhalten in Z2M dokumentiert.
+    §15.2 Geräteumbenennung-Verhalten in Z2M dokumentiert.
     2.7.1 (08.03.2026): GitHub-basierter Skill-Load eingeführt.
     2.7.0 (08.03.2026): §4.2 state_class von EMPFOHLEN auf PFLICHT hochgestuft (verifiziert:
     ohne state_class kein Eintrag in statistics_meta, keine Langzeit-Statistiken).
     §4.2 device_class-Spiegelung von Quellsensor als Regel ergänzt.
     §4.3 Hinweis auf triggers:/actions: als empfohlene Syntax seit HA 2024.10 ergänzt
     (Singular weiterhin gültig, kein deprecated).
-    §15 Anti-Pattern ergänzt: unit_of_measurement ohne state_class.
-    2.6.1 (08.03.2026): §21.2 doppelte Subquery entfernt — Verweis auf §19.2 statt Kopie.
+    §17 Anti-Pattern ergänzt: unit_of_measurement ohne state_class.
+    2.6.1 (08.03.2026): §19.2 doppelte Subquery entfernt — Verweis auf §18.2 statt Kopie.
     2.6.0 (08.03.2026): §0 Skill-Pflegepflicht ergänzt.
     2.4.1 (08.03.2026): §9.4 schedule WS-Commands live verifiziert (HA 2026.3.1) — DictStorageCollectionWebsocket, kein config_flow. schedule/create, /list, /delete dokumentiert.
     2.4.0 (08.03.2026): §6.6 REST-Body auf Plural-Keys korrigiert (triggers/conditions/actions); Hinweis dass GET immer plural liefert. §6.9 unverifizierten HA-2026.3-Claim entfernt. §9.4 WebSocket-Aussage korrigiert: WS via Nabu Casa HTTP 403, kein Browser-Kontext verfügbar.
-    2.3.0 (08.03.2026): §2.7 EOF-Anker-Falle dokumentiert (letzte Zeile ohne trailing \n). §15 Anti-Pattern ergänzt. §19.5 WebSocket-Einschränkung korrigiert: generell HTTP 403 via Nabu Casa, nicht nur recorder. §20 neu: WebSocket-API — getestete Commands, defekte Commands, Protokoll-Muster.
-    2.2.0 (08.03.2026): §19 erweitert — Offset-Berechnung korrigiert (prev_sum - bad_sum, nicht state - bad_sum). §19.6 neu: sum vs. state Normalverhalten erklärt, §19.7 neu: Negative Balken im Energy-Dashboard — Diagnose-Checkliste, §19.2 Diagnoseschritt ergänzt: Sichtbarkeit im Dashboard vor Fix prüfen.
+    2.3.0 (08.03.2026): §2.7 EOF-Anker-Falle dokumentiert (letzte Zeile ohne trailing \n). §17 Anti-Pattern ergänzt. §18.5 WebSocket-Einschränkung korrigiert: generell HTTP 403 via Nabu Casa, nicht nur recorder. §17 neu: WebSocket-API — getestete Commands, defekte Commands, Protokoll-Muster.
+    2.2.0 (08.03.2026): §18 erweitert — Offset-Berechnung korrigiert (prev_sum - bad_sum, nicht state - bad_sum). §18.6 neu: sum vs. state Normalverhalten erklärt, §18.7 neu: Negative Balken im Energy-Dashboard — Diagnose-Checkliste, §18.2 Diagnoseschritt ergänzt: Sichtbarkeit im Dashboard vor Fix prüfen.
     2.1.1 (08.03.2026): "TRIGGER THIS SKILL WHEN" ergänzt.
-    2.1.0 (08.03.2026): §19 neu — Statistiken reparieren (sum-Reset nach HA-Neustart).
+    2.1.0 (08.03.2026): §18 neu — Statistiken reparieren (sum-Reset nach HA-Neustart).
     Diagnose via SQL, Fix-Prozess via run_python shell_command + sqlite3 (verifiziert).
     WebSocket-Erkenntnisse: recorder/import_statistics undokumentiert, via Nabu Casa
     nicht erreichbar (HTTP 403). TRIGGER ergänzt: Statistiken reparieren.
@@ -201,6 +202,8 @@ GET /api/logbook/<ISO-Z>?entity_id=<entity_id>
   - `last_triggered` der auslösenden Automation prüfen:
     `GET /api/states/automation.<n>` → Attribut `last_triggered`.
 
+
+- **Supervisor-API (`/api/hassio/`):** Verwendet `SUPERVISOR_TOKEN` (nicht den Long-Lived Token). Nur innerhalb eines Add-ons verfügbar — aus Claude-Sessions **nicht nutzbar**. Add-on-Konfiguration nur per HA-UI oder SSH.
 ---
 
 ## 2. shell_command — JSON-Parse-Pfad (KRITISCH)
@@ -903,7 +906,7 @@ Body: {"handler": "schedule"}
 
 **Einzige Wege (verifiziert HA 2026.3.1):**
 - HA-UI: Einstellungen → Geräte & Dienste → Helfer → Zeitplan erstellen
-- WebSocket-API via `run_python` auf localhost — **funktioniert** (§20.1, §19.3)
+- WebSocket-API via `run_python` auf localhost — **funktioniert** (§17.1, §18.3)
 
 `schedule` hat **keinen `config_flow.py`** und keinen REST-Endpoint — nutzt `DictStorageCollectionWebsocket`.
 WebSocket via Nabu Casa: HTTP 403.
@@ -922,7 +925,7 @@ WS-Commands (verifiziert HA 2026.3.1):
 {"id":3, "type":"schedule/delete", "schedule_id":"mein_zeitplan"}
 # → success: true
 ```
-Verbindungsaufbau via `run_python` → §20.4.
+Verbindungsaufbau via `run_python` → §17.4.
 
 ---
 
@@ -1060,66 +1063,7 @@ Muster für Original-Wert sichern/wiederherstellen:
 
 ---
 
-## 14. Analyse-Reports — Struktur
-```
-1. Executive Summary (2–3 Sätze: Gesamtzustand + wichtigste Befunde)
-2. Kritische Probleme (sofortiger Handlungsbedarf)
-3. Warnungen (beobachten)
-4. Systemgesundheit (was funktioniert gut)
-5. Automations-Insights (Muster, Auffälligkeiten)
-6. Klimaanalyse (Temperaturen, Effizienz)
-7. Nutzerverhalten (manuelle Eingriffe → Automationspotenzial)
-8. Empfehlungen (konkrete nächste Schritte)
-```
-
-Qualitätsmaßstab:
-- SCHLECHT: „47 Automationen ausgelöst" — keine Aussage
-- GUT: „Bewegungssensor Küche 47x ausgelöst, Automation nur 2x — Conditions prüfen"
-- SCHLECHT: „Keine Fehler gefunden" — ohne tatsächliche Prüfung
-- GUT: Logbook + History abfragen, dann urteilen
-
-### 14.1 Analyse-Leitfragen
-
-- Muster über Zeit: Normal oder ungewöhnlich?
-- Korrelationen: Hängen Ereignisse zusammen?
-- Effizienz: Greifen Automationen wie erwartet?
-- Zuverlässigkeit: Flackernde Geräte oder Integrationen?
-- User Experience: Was verursacht manuelle Eingriffe?
-- Energie: Heizungseffizienz vs. Belegung?
-- Sicherheit: Unerwartete Bewegungs-/Türmuster?
-
----
-
-## 15. Bekannte Anti-Patterns (Schnellreferenz)
-
-| Anti-Pattern | Lösung | Warum |
-|---|---|---|
-| `condition: template` mit `float > 25` | `condition: numeric_state` | Validiert bei Load, nicht Runtime |
-| `wait_template` für „erst noch eintreten" | `wait_for_trigger` | Semantik verschieden |
-| `device_id` in Triggers | `entity_id` (oder `device_ieee` für ZHA) | device_id bricht bei Re-Add |
-| `mode: single` für Bewegungslicht | `mode: restart` | Re-Trigger muss Timer resetten |
-| Template-Sensor für Summe/Mittel | `min_max` Helper | Deklarativ, handled unavailable |
-| Template-Sensor mit Schwellwert | `threshold` Helper | Eingebaute Hysterese |
-| `initial:` bei input_number | weglassen | Setzt Wert nach Restart zurück |
-| `target:` im REST-Body | entity_id top-level | `target:` → HTTP 400 |
-| `/api/config/config_entries/<id>` DELETE | `/entry/<id>` | Ohne `/entry/` → 404 |
-| Sensor ans Dateiende in template.yaml | expliziter `- sensor:`-Block | Block-Falle → stumm verworfen |
-| New storage-Eintrag ohne Vorlage | Vorlage-Eintrag 1:1 lesen | Pflichtfelder-Inkonsistenz je Datei |
-| Storage reload statt Restart | Vollneustart | reload überschreibt Storage |
-| `datetime.utcnow().isoformat()` | `datetime.now(timezone.utc).isoformat()` | kein Timezone-Info (deprecated) |
-| `collection.hash` in entity_registry setzen | weglassen | Optional, Formel unbekannt |
-| `curl ... \| python3 << 'HEREDOC'` | Zwischendatei + `python3 << 'HEREDOC'` | Heredoc verdrängt Pipe auf stdin |
-| `shell_command` ändern + `reload_all` | HA-Vollneustart | Kein reload-Service für shell_command |
-| REST Automation-POST mit `trigger:[...]` | `triggers:[...]` (Plural) | GET liefert immer Plural — inkonsistent |
-| `schedule`-Helper via REST anlegen | WS `schedule/create` via `run_python` (§9.4) | Kein config_flow, kein REST-Endpoint |
-| Anker mit \n am EOF der Datei | Anker aus `repr()`-Output kopieren (EOF hat oft kein trailing \n) | `str.replace()` schlägt lautlos fehl |
-| LAG()-Window-Funktion in SQL-Diagnose | Subquery-Variante §19.2 | Zu viele Zeilen → JSONDecodeError "Extra data" |
-| `unit_of_measurement` ohne `state_class` | `state_class` + `device_class` ergänzen | Kein Eintrag in statistics_meta → keine Langzeit-Statistiken (verifiziert 08.03.2026) |
-| Template-Sensor mit `platform: integration` in template.yaml | In `sensor.yaml` | template.yaml kennt keine `platform:`-Einträge |
-
----
-
-## 16. Zigbee-Bulbs — Flash-Workaround
+## 14. Zigbee-Bulbs — Flash-Workaround
 
 ### 16.1 Problem (Hardware-Limitation)
 
@@ -1167,7 +1111,31 @@ actions:
 
 ---
 
-## 17. Android Companion App — next_alarm Sensor
+## 15. Zigbee2MQTT Add-on — Konfigurationszugriff
+
+### 22.1 Shadow-DOM-Problem (KRITISCH)
+
+Das Zigbee2MQTT Add-on rendert seine Konfigurationsoberfläche in einem Shadow-DOM.
+Die HA-UI bietet keinen direkten Zugriff auf die Add-on-Konfigurationsdatei.
+
+**Konsequenz:** Lesen und Schreiben der Z2M-Konfiguration muss direkt über die Datei erfolgen:
+
+```
+/config/zigbee2mqtt/configuration.yaml
+```
+
+Korrekte Zugriffsmethode via `read_file` / `write_file` shell_command (→ §2.3).
+
+Pfad verifiziert auf HA OS Add-on-Installs (HA 2026.3.0, 08.03.2026).
+
+### 22.2 Geräteumbenennung
+
+`friendly_name` in Z2M setzen + Haken „Übernehme Namen in HA" aktivieren → setzt
+Entity-Name **und** Gerätename in HA global.
+
+Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
+
+## 16. Android Companion App — next_alarm Sensor
 
 ### 17.1 Sensor-Verhalten (verifiziert)
 
@@ -1239,32 +1207,66 @@ conditions:
 
 ---
 
-## 18. Hassio Supervisor-API
+## 17. WebSocket API
 
-### 18.1 Token-Unterschied (KRITISCH)
+### 20.1 Zugang
 
-Die Supervisor-API (`/api/hassio/` bzw. `http://supervisor/`) verwendet einen **anderen Token**
-als die Standard-HA-REST-API.
+WebSocket-API ist **nur lokal** nutzbar:
+```
+ws://localhost:8123/api/websocket
+```
+- Auth: `{"type":"auth","access_token":"<LONG_LIVED_TOKEN>"}`
+- **Nabu Casa: HTTP 403 für alle WS-Commands** — kein WebSocket-Upgrade-Header-Durchlass.
+- Aus Claude-Session: nur via temporärem `run_python` shell_command erreichbar (erfordert Neustart).
 
-| API | Token |
-|-----|-------|
-| HA REST (`/api/...`) | Long-Lived Access Token (aus HA-Profil) |
-| Supervisor (`/api/hassio/...` via Nabu Casa oder intern) | `SUPERVISOR_TOKEN` (Add-on-Umgebungsvariable) |
+→ Temporärer Zugang: §18.3 Fix-Prozess (run_python hinzufügen, Neustart, testen, entfernen).
 
-**Symptom bei falschem Token:** HTTP 401 oder leere Antwort trotz gültigem HA-Token.
+### 20.2 Nützliche Commands (verifiziert HA 2026.3.1, 08.03.2026)
 
-### 18.2 Verfügbarkeit
+| Command | Beschreibung | Laufzeit | Besonderheit |
+|---------|-------------|----------|--------------|
+| `config/entity_registry/list` | 1960 Einträge inkl. disabled, area_id + labels | ~39ms | Schneller als `.storage/` lesen; MQTT-Bug existiert nicht |
+| `config/entity_registry/list_for_display` | 1227 Einträge nur enabled, kompakte Keys | ~13ms | Schnellster Registry-Zugriff; Keys: `ei`, `pl`, `lb`, `di` |
+| `config/area_registry/list` | Areas inkl. temperature_entity_id, humidity_entity_id | — | Mehr Felder als `.storage/` direkt |
+| `config/label_registry/list` | Labels inkl. label_id, color, icon | — | — |
+| `get_states` | Alle States inkl. context-Feld | ~18ms | Kein Vorteil ggü. `GET /api/states` |
+| `call_service` + `return_response: true` | Wie REST `?return_response` | — | **Vorteil:** `target: {area_id/label_id}` möglich (REST kennt kein target:) |
+| `subscribe_events` / `unsubscribe_events` | Event-Subscription | — | Für One-Shot-Modell nicht sinnvoll |
+| `ping` | Verbindungstest | ~1ms | — |
 
-- `SUPERVISOR_TOKEN` ist nur innerhalb eines Add-ons als Umgebungsvariable verfügbar.
-- Von außen (bash_tool, Claude-Session) **nicht zugänglich**.
-- Supervisor-Endpunkte daher aus Claude-Sessions heraus **nicht nutzbar**.
+### 20.3 Nicht nutzbare Commands (defekt in HA 2026.3.1)
 
-**Konsequenz:** Add-on-Konfiguration, Snapshot-Verwaltung und ähnliche Supervisor-Funktionen
-müssen über die HA-UI oder direkt per SSH erfolgen — nicht per REST aus dem bash_tool.
+| Command | Status | Symptom |
+|---------|--------|---------|
+| `validate_config` | **DEFEKT** | `invalid_format — extra keys not allowed @ data['trigger']` bei jeder Payload-Variante (Liste, Dict, platform:, trigger:, leer) |
+| `extract_from_target` | **NICHT NUTZBAR** | Gibt immer leere Listen zurück; Doku-Keys falsch (`referenced_entities` statt `entity_ids`) — intern für Frontend |
+
+### 20.4 WS-Protokoll-Muster (für run_python-Skripte)
+
+```python
+import asyncio, websockets, json
+
+async def ws_call(token, command, payload=None):
+    uri = "ws://localhost:8123/api/websocket"
+    async with websockets.connect(uri) as ws:
+        await ws.recv()                          # auth_required
+        await ws.send(json.dumps({"type": "auth", "access_token": token}))
+        await ws.recv()                          # auth_ok
+
+        req = {"id": 1, "type": command}
+        if payload:
+            req.update(payload)
+        await ws.send(json.dumps(req))
+        return json.loads(await ws.recv())
+
+# Beispiel:
+result = asyncio.run(ws_call(TOKEN, "config/entity_registry/list_for_display"))
+entities = result["result"]   # Liste mit Einträgen {ei, pl, lb, di, ...}
+```
 
 ---
 
-## 19. Statistiken reparieren (sum-Reset nach HA-Neustart)
+## 18. Statistiken reparieren (sum-Reset nach HA-Neustart)
 
 ### 19.1 Problem
 Nach HA-Neustart springt `sum` in der `statistics`-Tabelle auf 0 zurück,
@@ -1306,7 +1308,7 @@ Keine Treffer = DB integer. Zeitraum: `time.time() - 60*24*3600` für 60 Tage.
 
 **Schritt 2 — Vor Fix prüfen: Ist das Problem im Dashboard sichtbar?**
 Negative Balken im Energy-Dashboard können auch durch
-Differenzberechnung entstehen (→ §19.7). Vor jedem Fix sicherstellen,
+Differenzberechnung entstehen (→ §18.7). Vor jedem Fix sicherstellen,
 dass tatsächlich ein sum-Einbruch vorliegt und dieser dashboard-relevant ist.
 
 **Schritt 3 — Offset berechnen:**
@@ -1391,7 +1393,7 @@ Nicht jeder negative Balken ist ein statistics-Reset. Reihenfolge der Prüfung:
    → Kein Datenbankfehler, kein Fix nötig.
 
 2. **sum-Einbruch in `statistics` vorhanden?**
-   → SQL-Diagnose §19.2 Schritt 1 ausführen (**Subquery-Variante** — nicht LAG).
+   → SQL-Diagnose §18.2 Schritt 1 ausführen (**Subquery-Variante** — nicht LAG).
    Erst wenn ein echter Einbruch nachgewiesen ist, Fix-Prozess starten.
 
 3. **Batch-Reset (viele Sensoren gleichzeitig)?**
@@ -1402,66 +1404,7 @@ Nicht jeder negative Balken ist ein statistics-Reset. Reihenfolge der Prüfung:
 
 ---
 
-## 20. WebSocket API
-
-### 20.1 Zugang
-
-WebSocket-API ist **nur lokal** nutzbar:
-```
-ws://localhost:8123/api/websocket
-```
-- Auth: `{"type":"auth","access_token":"<LONG_LIVED_TOKEN>"}`
-- **Nabu Casa: HTTP 403 für alle WS-Commands** — kein WebSocket-Upgrade-Header-Durchlass.
-- Aus Claude-Session: nur via temporärem `run_python` shell_command erreichbar (erfordert Neustart).
-
-→ Temporärer Zugang: §19.3 Fix-Prozess (run_python hinzufügen, Neustart, testen, entfernen).
-
-### 20.2 Nützliche Commands (verifiziert HA 2026.3.1, 08.03.2026)
-
-| Command | Beschreibung | Laufzeit | Besonderheit |
-|---------|-------------|----------|--------------|
-| `config/entity_registry/list` | 1960 Einträge inkl. disabled, area_id + labels | ~39ms | Schneller als `.storage/` lesen; MQTT-Bug existiert nicht |
-| `config/entity_registry/list_for_display` | 1227 Einträge nur enabled, kompakte Keys | ~13ms | Schnellster Registry-Zugriff; Keys: `ei`, `pl`, `lb`, `di` |
-| `config/area_registry/list` | Areas inkl. temperature_entity_id, humidity_entity_id | — | Mehr Felder als `.storage/` direkt |
-| `config/label_registry/list` | Labels inkl. label_id, color, icon | — | — |
-| `get_states` | Alle States inkl. context-Feld | ~18ms | Kein Vorteil ggü. `GET /api/states` |
-| `call_service` + `return_response: true` | Wie REST `?return_response` | — | **Vorteil:** `target: {area_id/label_id}` möglich (REST kennt kein target:) |
-| `subscribe_events` / `unsubscribe_events` | Event-Subscription | — | Für One-Shot-Modell nicht sinnvoll |
-| `ping` | Verbindungstest | ~1ms | — |
-
-### 20.3 Nicht nutzbare Commands (defekt in HA 2026.3.1)
-
-| Command | Status | Symptom |
-|---------|--------|---------|
-| `validate_config` | **DEFEKT** | `invalid_format — extra keys not allowed @ data['trigger']` bei jeder Payload-Variante (Liste, Dict, platform:, trigger:, leer) |
-| `extract_from_target` | **NICHT NUTZBAR** | Gibt immer leere Listen zurück; Doku-Keys falsch (`referenced_entities` statt `entity_ids`) — intern für Frontend |
-
-### 20.4 WS-Protokoll-Muster (für run_python-Skripte)
-
-```python
-import asyncio, websockets, json
-
-async def ws_call(token, command, payload=None):
-    uri = "ws://localhost:8123/api/websocket"
-    async with websockets.connect(uri) as ws:
-        await ws.recv()                          # auth_required
-        await ws.send(json.dumps({"type": "auth", "access_token": token}))
-        await ws.recv()                          # auth_ok
-
-        req = {"id": 1, "type": command}
-        if payload:
-            req.update(payload)
-        await ws.send(json.dumps(req))
-        return json.loads(await ws.recv())
-
-# Beispiel:
-result = asyncio.run(ws_call(TOKEN, "config/entity_registry/list_for_display"))
-entities = result["result"]   # Liste mit Einträgen {ei, pl, lb, di, ...}
-```
-
----
-
-## 21. Energie-Sensoren — state_class, Glitch-Analyse, Zombie-Erkennung
+## 19. Energie-Sensoren — state_class, Glitch-Analyse, Zombie-Erkennung
 
 ### 21.1 state_class-Wahl für Energie-Sensoren (verifiziert via HA Developer Docs)
 
@@ -1494,8 +1437,8 @@ Netz → [PM Verbraucher] → Verbraucher-Kreis
 - `total_increasing` friert korrekt ein (zählt keine negative Energie) → **DB sauber**
 - Negativer Wert pflanzt sich nach oben fort (Verbraucher-PM ebenfalls negativ) → **erwartet**
 
-**Prüfroutine (2-Monats-Check):** → §19.2 Schritt 1 (Subquery-Variante), `start_ts >= <unix_60_tage>`.
-Keine Treffer = DB integer. Bei Treffern → §19 Fix-Prozess.
+**Prüfroutine (2-Monats-Check):** → §18.2 Schritt 1 (Subquery-Variante), `start_ts >= <unix_60_tage>`.
+Keine Treffer = DB integer. Bei Treffern → §18 Fix-Prozess.
 
 ### 21.3 Zombie-Erkennung aus statistics_meta
 
@@ -1521,7 +1464,7 @@ Shelly-PMs erzeugen automatisch `*_returned_energy`-Sensoren. Diese können:
 - Wert > 0 haben → bei reinen Verbrauchern: Messrauschen oder falsch verkabelter PM
 
 Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Einspeisung konfiguriert ist
-(Warnung „Entität nicht nachverfolgt" + „Statistiken nicht definiert" → §21.5).
+(Warnung „Entität nicht nachverfolgt" + „Statistiken nicht definiert" → §19.5).
 
 ### 21.5 Energy-Dashboard Warnungen — Bedeutung
 
@@ -1531,26 +1474,61 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | „Statistiken nicht definiert" | Sensor neu / gerade aus exclude entfernt | Bis 5 Minuten warten — verschwindet automatisch |
 | „Statistiken nicht definiert" nach >10 Min | state_class fehlt oder falsch | Sensor-Attribute prüfen |
 
-## 22. Zigbee2MQTT Add-on — Konfigurationszugriff
+## 20. Bekannte Anti-Patterns (Schnellreferenz)
 
-### 22.1 Shadow-DOM-Problem (KRITISCH)
+| Anti-Pattern | Lösung | Warum |
+|---|---|---|
+| `condition: template` mit `float > 25` | `condition: numeric_state` | Validiert bei Load, nicht Runtime |
+| `wait_template` für „erst noch eintreten" | `wait_for_trigger` | Semantik verschieden |
+| `device_id` in Triggers | `entity_id` (oder `device_ieee` für ZHA) | device_id bricht bei Re-Add |
+| `mode: single` für Bewegungslicht | `mode: restart` | Re-Trigger muss Timer resetten |
+| Template-Sensor für Summe/Mittel | `min_max` Helper | Deklarativ, handled unavailable |
+| Template-Sensor mit Schwellwert | `threshold` Helper | Eingebaute Hysterese |
+| `initial:` bei input_number | weglassen | Setzt Wert nach Restart zurück |
+| `target:` im REST-Body | entity_id top-level | `target:` → HTTP 400 |
+| `/api/config/config_entries/<id>` DELETE | `/entry/<id>` | Ohne `/entry/` → 404 |
+| Sensor ans Dateiende in template.yaml | expliziter `- sensor:`-Block | Block-Falle → stumm verworfen |
+| New storage-Eintrag ohne Vorlage | Vorlage-Eintrag 1:1 lesen | Pflichtfelder-Inkonsistenz je Datei |
+| Storage reload statt Restart | Vollneustart | reload überschreibt Storage |
+| `datetime.utcnow().isoformat()` | `datetime.now(timezone.utc).isoformat()` | kein Timezone-Info (deprecated) |
+| `collection.hash` in entity_registry setzen | weglassen | Optional, Formel unbekannt |
+| `curl ... \| python3 << 'HEREDOC'` | Zwischendatei + `python3 << 'HEREDOC'` | Heredoc verdrängt Pipe auf stdin |
+| `shell_command` ändern + `reload_all` | HA-Vollneustart | Kein reload-Service für shell_command |
+| REST Automation-POST mit `trigger:[...]` | `triggers:[...]` (Plural) | GET liefert immer Plural — inkonsistent |
+| `schedule`-Helper via REST anlegen | WS `schedule/create` via `run_python` (§9.4) | Kein config_flow, kein REST-Endpoint |
+| Anker mit \n am EOF der Datei | Anker aus `repr()`-Output kopieren (EOF hat oft kein trailing \n) | `str.replace()` schlägt lautlos fehl |
+| LAG()-Window-Funktion in SQL-Diagnose | Subquery-Variante §18.2 | Zu viele Zeilen → JSONDecodeError "Extra data" |
+| `unit_of_measurement` ohne `state_class` | `state_class` + `device_class` ergänzen | Kein Eintrag in statistics_meta → keine Langzeit-Statistiken (verifiziert 08.03.2026) |
+| Template-Sensor mit `platform: integration` in template.yaml | In `sensor.yaml` | template.yaml kennt keine `platform:`-Einträge |
 
-Das Zigbee2MQTT Add-on rendert seine Konfigurationsoberfläche in einem Shadow-DOM.
-Die HA-UI bietet keinen direkten Zugriff auf die Add-on-Konfigurationsdatei.
+---
 
-**Konsequenz:** Lesen und Schreiben der Z2M-Konfiguration muss direkt über die Datei erfolgen:
-
+## 21. Analyse-Reports — Struktur
 ```
-/config/zigbee2mqtt/configuration.yaml
+1. Executive Summary (2–3 Sätze: Gesamtzustand + wichtigste Befunde)
+2. Kritische Probleme (sofortiger Handlungsbedarf)
+3. Warnungen (beobachten)
+4. Systemgesundheit (was funktioniert gut)
+5. Automations-Insights (Muster, Auffälligkeiten)
+6. Klimaanalyse (Temperaturen, Effizienz)
+7. Nutzerverhalten (manuelle Eingriffe → Automationspotenzial)
+8. Empfehlungen (konkrete nächste Schritte)
 ```
 
-Korrekte Zugriffsmethode via `read_file` / `write_file` shell_command (→ §2.3).
+Qualitätsmaßstab:
+- SCHLECHT: „47 Automationen ausgelöst" — keine Aussage
+- GUT: „Bewegungssensor Küche 47x ausgelöst, Automation nur 2x — Conditions prüfen"
+- SCHLECHT: „Keine Fehler gefunden" — ohne tatsächliche Prüfung
+- GUT: Logbook + History abfragen, dann urteilen
 
-Pfad verifiziert auf HA OS Add-on-Installs (HA 2026.3.0, 08.03.2026).
+### 14.1 Analyse-Leitfragen
 
-### 22.2 Geräteumbenennung
+- Muster über Zeit: Normal oder ungewöhnlich?
+- Korrelationen: Hängen Ereignisse zusammen?
+- Effizienz: Greifen Automationen wie erwartet?
+- Zuverlässigkeit: Flackernde Geräte oder Integrationen?
+- User Experience: Was verursacht manuelle Eingriffe?
+- Energie: Heizungseffizienz vs. Belegung?
+- Sicherheit: Unerwartete Bewegungs-/Türmuster?
 
-`friendly_name` in Z2M setzen + Haken „Übernehme Namen in HA" aktivieren → setzt
-Entity-Name **und** Gerätename in HA global.
-
-Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
+---
