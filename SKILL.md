@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.7.1"
+  version: "2.8.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.8.0 (08.03.2026): §22 neu — Zigbee2MQTT Add-on Konfigurationszugriff: Shadow-DOM verhindert UI-Zugriff → direkter Dateizugriff über /config/zigbee2mqtt/configuration.yaml (§2.3). §22.2 Geräteumbenennung-Verhalten dokumentiert.
     2.7.1 (08.03.2026): GitHub-basierter Skill-Load eingeführt.
     2.7.0 (08.03.2026): §4.2 state_class von EMPFOHLEN auf PFLICHT hochgestuft (verifiziert:
     ohne state_class kein Eintrag in statistics_meta, keine Langzeit-Statistiken).
@@ -1503,3 +1504,26 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | „Statistiken nicht definiert" | Sensor neu / gerade aus exclude entfernt | Bis 5 Minuten warten — verschwindet automatisch |
 | „Statistiken nicht definiert" nach >10 Min | state_class fehlt oder falsch | Sensor-Attribute prüfen |
 
+
+---
+
+## 22. Zigbee2MQTT Add-on — Konfigurationszugriff
+
+### 22.1 Shadow-DOM-Problem (KRITISCH)
+
+Das Zigbee2MQTT Add-on rendert seine Konfigurationsoberfläche in einem Shadow-DOM.
+Die HA-UI bietet keinen direkten Zugriff auf die Add-on-Konfigurationsdatei.
+
+**Konsequenz:** Lesen und Schreiben der Z2M-Konfiguration muss direkt über die Datei erfolgen:
+```
+/config/zigbee2mqtt/configuration.yaml
+```
+Korrekte Zugriffsmethode via `read_file` / `write_file` shell_command (→ §2.3).
+Pfad verifiziert auf HA OS Add-on-Installs (Standard-Installationspfad).
+
+### 22.2 Geräteumbenennung via friendly_name
+
+`friendly_name` in Z2M setzen + Haken „Übernehme Namen in HA" aktivieren →
+setzt **Entity-Name und Gerätename** in HA global.
+
+Gilt ausschließlich für Zigbee-Geräte — nicht für andere Integrationen.
