@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.8.0"
+  version: "2.9.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.9.0 (08.03.2026): §2.9 neu — python_script (Legacy) und pyscript (HACS) sind nicht
+    standardmäßig vorhanden. Prüfpflicht via GET /api/services vor Nutzung. File-Schreiben
+    außerhalb shell_command nicht möglich in Standard-HA (verifiziert RBO + LB-Instanz).
     2.8.0 (08.03.2026): §22 neu — Zigbee2MQTT Add-on Konfigurationszugriff:
     Shadow-DOM verhindert UI-Zugriff → direkter Dateizugriff über
     /config/zigbee2mqtt/configuration.yaml (verifiziert auf HA OS Add-on-Installs, §2.3).
@@ -392,6 +395,20 @@ print(f"rc={r['service_response']['returncode']} err={r['service_response']['std
 - **Einzige Lösung: HA-Vollneustart** (mit expliziter Benutzerbestätigung).
 
 Konsequenz: Neue shell_commands (z.B. `delete_file`) sind erst nach Neustart verfügbar.
+
+
+### 2.9 python_script / pyscript — Verfügbarkeit prüfen
+
+`python_script` (Legacy-Domain) und `pyscript` (HACS-Integration) sind
+NICHT standardmäßig vorhanden.
+
+**Vor Nutzung prüfen:**
+- Legacy: `GET /api/services` → domain `python_script` vorhanden?
+- pyscript: `GET /api/services` → domain `pyscript` vorhanden?
+
+Falls nicht verfügbar: File-Schreiben ausschließlich via `write_file`
+shell_command (§2.3). `open()` steht nur in Add-ons und SSH zur
+Verfügung — nicht in Automationen, Scripts oder template.yaml.
 
 ---
 
