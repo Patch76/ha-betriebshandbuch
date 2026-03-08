@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.15.0"
+  version: "2.16.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.16.0 (09.03.2026): §23 neu — Verifikationstabelle nach Änderungen. §2.3 Kurzregel Shell-Command-Fehlerbehandlung ergänzt.
     2.15.0 (09.03.2026): §22 neu — CLAUDE.md-Template (Pflicht-Abschnitte + Regeln). §13 Hinweis auf Integrations-Abhängigkeit ergänzt. §15.1 Plattform-Hinweis präzisiert (Add-on vs. Docker).
     2.14.0 (08.03.2026): §2.3b Grenzwert-Widerspruch behoben (100→50 KB). §9.4 Querverweis §18.3→§17.4 korrigiert. §17.2 Tabelle: instanzspezifische Eintrags-Zahlen als Beispiel markiert, kontextlosen MQTT-Bug-Kommentar entfernt.
     2.13.0 (08.03.2026): §14–§21 H3-Subsektionsnummern korrigiert nach Restrukturierung in v2.12.0 (16.x→14.x, 22.x→15.x, 17.x→16.x, 20.x→17.x, 19.x→18.x, 21.x→19.x, 14.1→21.1).
@@ -239,6 +240,7 @@ const content = d.service_response.stdout;
 - `write_file` schreibt **IMMER** nach `/config/` (hardcoded Prefix). Kein Schreiben nach `/tmp/`.
 - UTF-8-Encoding: `base64.b64encode(text.encode('utf-8')).decode('ascii')`.
 - Lesen + Modifizieren + Schreiben **immer in einem Python-Block** (atomarer Zyklus → §2.7).
+- **Fehlerbehandlung:** Bei rc≠0 oder leerem stdout max. 2 Versuche, dann SSH-Tab als Fallback.
 
 ### 2.3b write_file — HTTP-500-Limit bei großen Dateien (KRITISCH, verifiziert 07.03.2026)
 
@@ -1579,3 +1581,18 @@ Nummerierte Liste. Nach Erledigung entfernen — nie als "erledigt" markiert ste
 - **Credentials ausschließlich in `secrets.yaml`** — nie in `claude.md`.
 - **Skill-Querverweise** statt Inhaltskopie: `→ Skill §4.1` statt den Regeltext zu wiederholen.
 - **Integrations-spezifische Abschnitte** (z.B. Better Thermostat, Android next_alarm) nur wenn die Integration auf dieser Instanz installiert ist.
+
+---
+
+## 23. Verifikation nach Änderungen
+
+Nach jedem nicht-trivialen Schritt den passenden API-Call wählen:
+
+| Kontext | Verifikation |
+|---|---|
+| Automation geändert | `GET /api/config/automation/<id>` + Logbuch/Trace prüfen |
+| Entity-State erwartet | `GET /api/states/<entity_id>` |
+| Logbuch-Check | `GET /api/logbook/<iso_timestamp>` |
+| Shell-Command ausgeführt | `rc=0` prüfen + stdout auf Inhalt validieren |
+| Template-Sensor neu/geändert | `POST /api/template` mit Ausdruck direkt testen |
+| Helper-Wert gesetzt | `GET /api/states/<helper_entity_id>` |
