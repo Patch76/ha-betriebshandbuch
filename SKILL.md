@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.12.0"
+  version: "2.13.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.13.0 (08.03.2026): §14–§21 H3-Subsektionsnummern korrigiert nach Restrukturierung in v2.12.0 (16.x→14.x, 22.x→15.x, 17.x→16.x, 20.x→17.x, 19.x→18.x, 21.x→19.x, 14.1→21.1).
     2.12.0 (08.03.2026): Skill-Restrukturierung — §§14-21 neu geordnet nach Verwendungshäufigkeit. §18 (Supervisor-API) als eigenständige Sektion entfernt, Kernaussage in §1.7 integriert.
     2.11.0 (08.03.2026): §0 Pflicht­regel ergänzt — Live abrufen statt fragen: prüfbaren Zustand immer per API verifizieren, nie den Nutzer fragen.
     2.10.0 (08.03.2026): §0 Verifikationsregel für destruktive Aktionen ergänzt — Schleifen-
@@ -1065,7 +1066,7 @@ Muster für Original-Wert sichern/wiederherstellen:
 
 ## 14. Zigbee-Bulbs — Flash-Workaround
 
-### 16.1 Problem (Hardware-Limitation)
+### 14.1 Problem (Hardware-Limitation)
 
 Zigbee-Bulbs speichern intern den zuletzt aktiven Zustand (Farbe, Farbtemperatur).
 Beim nächsten Einschalten zeigen sie **kurz den gespeicherten Wert**, bevor HA die
@@ -1075,7 +1076,7 @@ gewünschten Parameter setzt → sichtbarer weißer oder falscher Farbblitz.
 - `transition:`-Parameter (betrifft nur die HA-seitige Kurve, nicht den Gerätespeicher)
 - `brightness: 0` vor Ausschalten (kein gültiger Wert für die meisten Bulbs)
 
-### 16.2 Workaround — Gerätespeicher überschreiben
+### 14.2 Workaround — Gerätespeicher überschreiben
 
 Vor dem Ausschalten die **Zielfarbe bei `brightness: 1`** setzen. Das überschreibt den
 internen Speicher der Bulb mit dem gewünschten Startzustand — der nächste Einschaltvorgang
@@ -1100,7 +1101,7 @@ actions:
       entity_id: light.meine_zigbee_bulb
 ```
 
-### 16.3 Hinweise
+### 14.3 Hinweise
 
 - `milliseconds: 100` Delay ist ausreichend; bei trägen Geräten auf `200–500ms` erhöhen.
 - Funktioniert für `color_temp` und `hs_color`/`rgb_color`.
@@ -1113,7 +1114,7 @@ actions:
 
 ## 15. Zigbee2MQTT Add-on — Konfigurationszugriff
 
-### 22.1 Shadow-DOM-Problem (KRITISCH)
+### 15.1 Shadow-DOM-Problem (KRITISCH)
 
 Das Zigbee2MQTT Add-on rendert seine Konfigurationsoberfläche in einem Shadow-DOM.
 Die HA-UI bietet keinen direkten Zugriff auf die Add-on-Konfigurationsdatei.
@@ -1128,7 +1129,7 @@ Korrekte Zugriffsmethode via `read_file` / `write_file` shell_command (→ §2.3
 
 Pfad verifiziert auf HA OS Add-on-Installs (HA 2026.3.0, 08.03.2026).
 
-### 22.2 Geräteumbenennung
+### 15.2 Geräteumbenennung
 
 `friendly_name` in Z2M setzen + Haken „Übernehme Namen in HA" aktivieren → setzt
 Entity-Name **und** Gerätename in HA global.
@@ -1137,14 +1138,14 @@ Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
 
 ## 16. Android Companion App — next_alarm Sensor
 
-### 17.1 Sensor-Verhalten (verifiziert)
+### 16.1 Sensor-Verhalten (verifiziert)
 
 - Liefert immer den zeitlich **nächsten** Alarm-Timestamp in UTC (`+00:00`).
 - Attribut `Package`: App, die den Alarm registriert hat.
 - Aktualisierungsrate: beim Laden oder alle ~15 Minuten (Einstellung „Akku sparen").
 - State-Format: ISO-Timestamp, z.B. `2026-03-08T06:00:00+00:00`.
 
-### 17.2 Bekannte Limitierungen
+### 16.2 Bekannte Limitierungen
 
 | Limitation | Erklärung |
 |---|---|
@@ -1153,7 +1154,7 @@ Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
 | Timer ≠ Wecker nicht trennbar | Beide laufen unter `com.android.deskclock` |
 | Kurz vor Alarmzeit `unavailable` | Sensor kann unmittelbar vor Auslösung seinen State verlieren |
 
-### 17.3 Best Practice
+### 16.3 Best Practice
 
 **Allowlist auf Deskclock beschränken** (Companion App → Sensor-Einstellungen → next_alarm Allowlist):
 ```
@@ -1182,7 +1183,7 @@ conditions:
       {{ as_timestamp(states('sensor.<gerät>_next_alarm')) > as_timestamp(now()) }}
 ```
 
-### 17.4 Typisches Automationsmuster
+### 16.4 Typisches Automationsmuster
 ```yaml
 - id: "wecker_vorkonditionierung"
   alias: "Vorkonditionierung 10 min vor Wecker"
@@ -1209,7 +1210,7 @@ conditions:
 
 ## 17. WebSocket API
 
-### 20.1 Zugang
+### 17.1 Zugang
 
 WebSocket-API ist **nur lokal** nutzbar:
 ```
@@ -1221,7 +1222,7 @@ ws://localhost:8123/api/websocket
 
 → Temporärer Zugang: §18.3 Fix-Prozess (run_python hinzufügen, Neustart, testen, entfernen).
 
-### 20.2 Nützliche Commands (verifiziert HA 2026.3.1, 08.03.2026)
+### 17.2 Nützliche Commands (verifiziert HA 2026.3.1, 08.03.2026)
 
 | Command | Beschreibung | Laufzeit | Besonderheit |
 |---------|-------------|----------|--------------|
@@ -1234,14 +1235,14 @@ ws://localhost:8123/api/websocket
 | `subscribe_events` / `unsubscribe_events` | Event-Subscription | — | Für One-Shot-Modell nicht sinnvoll |
 | `ping` | Verbindungstest | ~1ms | — |
 
-### 20.3 Nicht nutzbare Commands (defekt in HA 2026.3.1)
+### 17.3 Nicht nutzbare Commands (defekt in HA 2026.3.1)
 
 | Command | Status | Symptom |
 |---------|--------|---------|
 | `validate_config` | **DEFEKT** | `invalid_format — extra keys not allowed @ data['trigger']` bei jeder Payload-Variante (Liste, Dict, platform:, trigger:, leer) |
 | `extract_from_target` | **NICHT NUTZBAR** | Gibt immer leere Listen zurück; Doku-Keys falsch (`referenced_entities` statt `entity_ids`) — intern für Frontend |
 
-### 20.4 WS-Protokoll-Muster (für run_python-Skripte)
+### 17.4 WS-Protokoll-Muster (für run_python-Skripte)
 
 ```python
 import asyncio, websockets, json
@@ -1268,12 +1269,12 @@ entities = result["result"]   # Liste mit Einträgen {ei, pl, lb, di, ...}
 
 ## 18. Statistiken reparieren (sum-Reset nach HA-Neustart)
 
-### 19.1 Problem
+### 18.1 Problem
 Nach HA-Neustart springt `sum` in der `statistics`-Tabelle auf 0 zurück,
 während `state` (absoluter Zählerstand) korrekt weiterläuft.
 Ergebnis im Energy-Dashboard: massiv negativer Tagesbalken.
 
-### 19.2 Diagnose (SQL-Integration, SELECT only)
+### 18.2 Diagnose (SQL-Integration, SELECT only)
 
 **Schritt 1 — Reset-Kandidaten finden:**
 
@@ -1322,7 +1323,7 @@ JOIN statistics prev ON prev.metadata_id = bad.metadata_id
 WHERE bad.metadata_id = <ID> AND bad.id = <ERSTE_BAD_ID>
 ```
 
-### 19.3 Fix-Prozess (verifiziert 08.03.2026)
+### 18.3 Fix-Prozess (verifiziert 08.03.2026)
 1. Python-Skript nach `/config/fix_statistics.py` schreiben (write_file)
 2. `run_python: "python3 /config/{{ script }}"` zu shell_command in
    `configuration.yaml` hinzufügen
@@ -1335,7 +1336,7 @@ WHERE bad.metadata_id = <ID> AND bad.id = <ERSTE_BAD_ID>
 7. Cleanup: Skript löschen (delete_file), `run_python` aus configuration.yaml
    entfernen, zweiter Neustart
 
-### 19.4 Python-Skript-Muster
+### 18.4 Python-Skript-Muster
 ```python
 import shutil, sqlite3, os
 DB = "/config/home-assistant_v2.db"
@@ -1359,7 +1360,7 @@ con.commit()
 con.close()
 ```
 
-### 19.5 Wichtig
+### 18.5 Wichtig
 - SQL-Integration (SELECT-only) → direkte UPDATEs nicht möglich
 - WebSocket-API ist via Nabu Casa **generell nicht erreichbar** (HTTP 403 für alle WS-Commands —
   kein WebSocket-Upgrade-Header-Durchlass). Betrifft ALLE Commands, nicht nur `recorder/import_statistics`.
@@ -1369,7 +1370,7 @@ con.close()
 - Backup nach erfolgreicher Verifikation manuell löschen (offener Punkt
   im Memory notieren)
 
-### 19.6 sum vs. state — Normalverhalten (KRITISCH)
+### 18.6 sum vs. state — Normalverhalten (KRITISCH)
 
 `sum` und `state` weichen bei `total_increasing`-Sensoren regulär voneinander ab:
 - `state` = absoluter Zählerstand des Geräts
@@ -1383,7 +1384,7 @@ FALSCH:   offset = state    - bad_sum  ← state ≠ sum ist normal, kein Fix-Ma
 Beispiel: prev_sum=236.41, bad_sum=0.02, state=236.24
 → Offset = 236.41 - 0.02 = **236.39** (nicht 236.22)
 
-### 19.7 Negative Balken im Energy-Dashboard — Diagnose
+### 18.7 Negative Balken im Energy-Dashboard — Diagnose
 
 Nicht jeder negative Balken ist ein statistics-Reset. Reihenfolge der Prüfung:
 
@@ -1406,7 +1407,7 @@ Nicht jeder negative Balken ist ein statistics-Reset. Reihenfolge der Prüfung:
 
 ## 19. Energie-Sensoren — state_class, Glitch-Analyse, Zombie-Erkennung
 
-### 21.1 state_class-Wahl für Energie-Sensoren (verifiziert via HA Developer Docs)
+### 19.1 state_class-Wahl für Energie-Sensoren (verifiziert via HA Developer Docs)
 
 | Szenario | state_class | Begründung |
 |----------|-------------|------------|
@@ -1422,7 +1423,7 @@ Nicht jeder negative Balken ist ein statistics-Reset. Reihenfolge der Prüfung:
 **integration-Platform-Default:** `state_class: total` — korrekt für W→kWh Lifetime-Sensoren.
 Nicht auf `total_increasing` ändern, solange kein echter Reset-Zyklus vorliegt.
 
-### 21.2 Glitch-Analyse: Negative Leistungswerte an Verbraucher-PMs
+### 19.2 Glitch-Analyse: Negative Leistungswerte an Verbraucher-PMs
 
 Negative Werte bei Shelly-PMs hinter Solar-Panels sind **kein Glitch** sondern physikalisch korrekt:
 
@@ -1440,7 +1441,7 @@ Netz → [PM Verbraucher] → Verbraucher-Kreis
 **Prüfroutine (2-Monats-Check):** → §18.2 Schritt 1 (Subquery-Variante), `start_ts >= <unix_60_tage>`.
 Keine Treffer = DB integer. Bei Treffern → §18 Fix-Prozess.
 
-### 21.3 Zombie-Erkennung aus statistics_meta
+### 19.3 Zombie-Erkennung aus statistics_meta
 
 `statistics_meta` enthält alle Sensoren die jemals Statistiken hatten — auch gelöschte.
 Abgleich mit aktiven Entities nach jeder größeren Bereinigung:
@@ -1457,7 +1458,7 @@ Verdächtige Einträge prüfen:
 
 **Zombie-Bereinigung:** §11.1 (entity_registry via SSH-Terminal + Neustart).
 
-### 21.4 returned_energy-Sensoren an Verbrauchern
+### 19.4 returned_energy-Sensoren an Verbrauchern
 
 Shelly-PMs erzeugen automatisch `*_returned_energy`-Sensoren. Diese können:
 - Wert 0,0 kWh haben → harmlos (kein Messrauschen aufgezeichnet)
@@ -1466,7 +1467,7 @@ Shelly-PMs erzeugen automatisch `*_returned_energy`-Sensoren. Diese können:
 Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Einspeisung konfiguriert ist
 (Warnung „Entität nicht nachverfolgt" + „Statistiken nicht definiert" → §19.5).
 
-### 21.5 Energy-Dashboard Warnungen — Bedeutung
+### 19.5 Energy-Dashboard Warnungen — Bedeutung
 
 | Warnung | Ursache | Fix |
 |---------|---------|-----|
@@ -1521,7 +1522,7 @@ Qualitätsmaßstab:
 - SCHLECHT: „Keine Fehler gefunden" — ohne tatsächliche Prüfung
 - GUT: Logbook + History abfragen, dann urteilen
 
-### 14.1 Analyse-Leitfragen
+### 21.1 Analyse-Leitfragen
 
 - Muster über Zeit: Normal oder ungewöhnlich?
 - Korrelationen: Hängen Ereignisse zusammen?
