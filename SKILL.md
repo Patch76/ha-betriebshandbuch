@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.14.0"
+  version: "2.15.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.15.0 (09.03.2026): §22 neu — CLAUDE.md-Template (Pflicht-Abschnitte + Regeln). §13 Hinweis auf Integrations-Abhängigkeit ergänzt. §15.1 Plattform-Hinweis präzisiert (Add-on vs. Docker).
     2.14.0 (08.03.2026): §2.3b Grenzwert-Widerspruch behoben (100→50 KB). §9.4 Querverweis §18.3→§17.4 korrigiert. §17.2 Tabelle: instanzspezifische Eintrags-Zahlen als Beispiel markiert, kontextlosen MQTT-Bug-Kommentar entfernt.
     2.13.0 (08.03.2026): §14–§21 H3-Subsektionsnummern korrigiert nach Restrukturierung in v2.12.0 (16.x→14.x, 22.x→15.x, 17.x→16.x, 20.x→17.x, 19.x→18.x, 21.x→19.x, 14.1→21.1).
     2.12.0 (08.03.2026): Skill-Restrukturierung — §§14-21 neu geordnet nach Verwendungshäufigkeit. §18 (Supervisor-API) als eigenständige Sektion entfernt, Kernaussage in §1.7 integriert.
@@ -1042,7 +1043,7 @@ DELETE /api/config/config_entries/entry/<config_entry_id>
 
 ---
 
-## 13. Better Thermostat — Preset-Muster
+## 13. Better Thermostat — Preset-Muster *(nur relevant wenn Better Thermostat installiert)*
 
 `climate.set_temperature` setzt `preset_mode` auf `none` → Preset-Watchdog kann greifen.
 
@@ -1129,6 +1130,7 @@ Die HA-UI bietet keinen direkten Zugriff auf die Add-on-Konfigurationsdatei.
 Korrekte Zugriffsmethode via `read_file` / `write_file` shell_command (→ §2.3).
 
 Pfad verifiziert auf HA OS Add-on-Installs (HA 2026.3.0, 08.03.2026).
+Gilt nur wenn Z2M als Add-on läuft — bei externer Docker-Installation abweichender Pfad möglich.
 
 ### 15.2 Geräteumbenennung
 
@@ -1534,3 +1536,46 @@ Qualitätsmaßstab:
 - Sicherheit: Unerwartete Bewegungs-/Türmuster?
 
 ---
+---
+
+## 22. CLAUDE.md — Empfohlene Struktur (Template)
+
+Jede Instanz pflegt eine eigene `CLAUDE.md` mit **ausschließlich instanzspezifischem** Wissen.
+Instanzunabhängiges Wissen (API-Syntax, YAML-Regeln, Fallen) gehört in diesen Skill — nie in `claude.md`.
+
+### 22.1 Pflicht-Abschnitte (Reihenfolge einhalten)
+
+```
+## ① Skills — IMMER zuerst laden
+Ladebefehl mit bust-Cache + Skill-Name. Keine Versionsnummer nötig (bust zieht immer aktuell).
+
+## ② ha-mcp — Primärzugriff
+Connector-Name (z.B. LB, RBO) + Endpoint-URL + Tool-Anzahl + Verifikationsdatum.
+Regel: Automationen, Helfer, Entities IMMER live abrufen — nie aus claude.md.
+
+## ③ System & Config-Architektur
+Timezone/Standort. Tabelle: Datei → Inhalt/Besonderheit.
+Instanzspezifische Hinweise zu template.yaml-Struktur (letzter Block, Fallstricke).
+
+## ④ IoT-Stack
+Hardware-Übersicht: Zigbee-Broker (IP:Port), BT-Proxies, Cloud-Integrationen, Steckdosen/Schalter.
+
+## ⑤ Business-Logik
+Automations-Cluster mit Querverweisen auf Skill-Sektionen (z.B. → Skill §13, → Skill §14).
+Nur: Entity-IDs, Helfer-Namen, Logik-Beschreibung — keine YAML-Blöcke.
+
+## ⑥ Recorder
+Konfigurationsübersicht (purge_keep_days, exclude-Strategie, Sonder-Purge-Automationen).
+
+## ⑦ Offene Punkte (Stand <Datum>)
+Nummerierte Liste. Nach Erledigung entfernen — nie als "erledigt" markiert stehen lassen.
+```
+
+### 22.2 Regeln
+
+- **Ziel:** < 150 Zeilen, angestrebt < 4.000 Zeichen. Über diesem Limit: Inhalte in Skill oder live-Abruf auslagern.
+- **Keine konkreten Werte** die sich ändern können (Temperaturschwellen, Zeitpläne) → live via ha-mcp.
+- **Keine YAML-Blöcke** — die gehören in `automations.yaml`, nicht in `claude.md`.
+- **Credentials ausschließlich in `secrets.yaml`** — nie in `claude.md`.
+- **Skill-Querverweise** statt Inhaltskopie: `→ Skill §4.1` statt den Regeltext zu wiederholen.
+- **Integrations-spezifische Abschnitte** (z.B. Better Thermostat, Android next_alarm) nur wenn die Integration auf dieser Instanz installiert ist.
