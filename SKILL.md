@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.7.0"
+  version: "2.7.1"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.7.1 (08.03.2026): GitHub-basierter Skill-Load eingeführt.
     2.7.0 (08.03.2026): §4.2 state_class von EMPFOHLEN auf PFLICHT hochgestuft (verifiziert:
     ohne state_class kein Eintrag in statistics_meta, keine Langzeit-Statistiken).
     §4.2 device_class-Spiegelung von Quellsensor als Regel ergänzt.
