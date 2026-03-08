@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.9.0"
+  version: "2.10.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.10.0 (08.03.2026): §0 Verifikationsregel für destruktive Aktionen ergänzt — Schleifen-
+    Netzwerkfehler erzeugen Falsch-Negative; Befunde immer isoliert verifizieren.
     2.9.0 (08.03.2026): §2.9 neu — python_script (Legacy) und pyscript (HACS) sind nicht
     standardmäßig vorhanden. Prüfpflicht via GET /api/services vor Nutzung. File-Schreiben
     außerhalb shell_command nicht möglich in Standard-HA (verifiziert RBO + LB-Instanz).
@@ -78,6 +80,9 @@ metadata:
   (URL muss in Suchergebnissen erschienen sein). Browser (`computer`-Tool) ist für öffentliche Docs NICHT
   nötig — nur für HA-UI (Auth-geschützt) oder interaktive Seiten erforderlich.
   Muster: `web_search("HA integration xyz site:developers.home-assistant.io")` → dann `web_fetch(url)`.
+- **Verifikation vor destruktiver Aktion:** Befunde, die eine destruktive Aktion begründen
+  (Löschen, Entfernen, PR), immer einzeln und isoliert verifizieren — nie aus Schleifenergebnissen
+  ableiten. Netzwerkfehler in Schleifen erzeugen Falsch-Negative.
 - **Neustart nur mit expliziter Benutzerbestätigung.**
 - **Skill-Pflege (KRITISCH):** Beim Aktualisieren des Skills gilt:
   - Veraltetes Wissen **streichen oder als `⚠️ VERALTET` kennzeichnen** — nie still ergänzen.
