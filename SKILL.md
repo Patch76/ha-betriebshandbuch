@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.10.0"
+  version: "2.11.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.11.0 (08.03.2026): §0 Pflicht­regel ergänzt — Live abrufen statt fragen: prüfbaren Zustand immer per API verifizieren, nie den Nutzer fragen.
     2.10.0 (08.03.2026): §0 Verifikationsregel für destruktive Aktionen ergänzt — Schleifen-
     Netzwerkfehler erzeugen Falsch-Negative; Befunde immer isoliert verifizieren.
     2.9.0 (08.03.2026): §2.9 neu — python_script (Legacy) und pyscript (HACS) sind nicht
@@ -84,6 +85,7 @@ metadata:
   (Löschen, Entfernen, PR), immer einzeln und isoliert verifizieren — nie aus Schleifenergebnissen
   ableiten. Netzwerkfehler in Schleifen erzeugen Falsch-Negative.
 - **Neustart nur mit expliziter Benutzerbestätigung.**
+- **Live abrufen statt fragen:** Ist ein Zustand per API prüfbar (Entity-State, last_triggered, Attribut), immer live abrufen — nie den Nutzer fragen. Fragen nur wenn der Kontext wirklich nicht abrufbar ist.
 - **Skill-Pflege (KRITISCH):** Beim Aktualisieren des Skills gilt:
   - Veraltetes Wissen **streichen oder als `⚠️ VERALTET` kennzeichnen** — nie still ergänzen.
   - Neues Wissen ersetzt altes: beide Stellen anpassen (nicht nur neue Sektion anfügen).
