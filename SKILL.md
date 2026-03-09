@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.16.0"
+  version: "2.17.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.17.0 (09.03.2026): §§2.10+24 neu — SSH-Terminal-Verhaltensregeln (§2.10), Telegram notify-Service inkl. Escape-Funktion (§24). Verifiziert LB + RBO 09.03.2026.
     2.16.0 (09.03.2026): §23 neu — Verifikationstabelle nach Änderungen. §2.3 Kurzregel Shell-Command-Fehlerbehandlung ergänzt.
     2.15.0 (09.03.2026): §22 neu — CLAUDE.md-Template (Pflicht-Abschnitte + Regeln). §13 Hinweis auf Integrations-Abhängigkeit ergänzt. §15.1 Plattform-Hinweis präzisiert (Add-on vs. Docker).
     2.14.0 (08.03.2026): §2.3b Grenzwert-Widerspruch behoben (100→50 KB). §9.4 Querverweis §18.3→§17.4 korrigiert. §17.2 Tabelle: instanzspezifische Eintrags-Zahlen als Beispiel markiert, kontextlosen MQTT-Bug-Kommentar entfernt.
@@ -51,7 +52,8 @@ metadata:
     2.6.0 (08.03.2026): §0 Skill-Pflegepflicht ergänzt.
     2.4.1 (08.03.2026): §9.4 schedule WS-Commands live verifiziert (HA 2026.3.1) — DictStorageCollectionWebsocket, kein config_flow. schedule/create, /list, /delete dokumentiert.
     2.4.0 (08.03.2026): §6.6 REST-Body auf Plural-Keys korrigiert (triggers/conditions/actions); Hinweis dass GET immer plural liefert. §6.9 unverifizierten HA-2026.3-Claim entfernt. §9.4 WebSocket-Aussage korrigiert: WS via Nabu Casa HTTP 403, kein Browser-Kontext verfügbar.
-    2.3.0 (08.03.2026): §2.7 EOF-Anker-Falle dokumentiert (letzte Zeile ohne trailing \n). §17 Anti-Pattern ergänzt. §18.5 WebSocket-Einschränkung korrigiert: generell HTTP 403 via Nabu Casa, nicht nur recorder. §17 neu: WebSocket-API — getestete Commands, defekte Commands, Protokoll-Muster.
+    2.3.0 (08.03.2026): §2.7 EOF-Anker-Falle dokumentiert (letzte Zeile ohne trailing 
+). §17 Anti-Pattern ergänzt. §18.5 WebSocket-Einschränkung korrigiert: generell HTTP 403 via Nabu Casa, nicht nur recorder. §17 neu: WebSocket-API — getestete Commands, defekte Commands, Protokoll-Muster.
     2.2.0 (08.03.2026): §18 erweitert — Offset-Berechnung korrigiert (prev_sum - bad_sum, nicht state - bad_sum). §18.6 neu: sum vs. state Normalverhalten erklärt, §18.7 neu: Negative Balken im Energy-Dashboard — Diagnose-Checkliste, §18.2 Diagnoseschritt ergänzt: Sichtbarkeit im Dashboard vor Fix prüfen.
     2.1.1 (08.03.2026): "TRIGGER THIS SKILL WHEN" ergänzt.
     2.1.0 (08.03.2026): §18 neu — Statistiken reparieren (sum-Reset nach HA-Neustart).
@@ -368,8 +370,10 @@ c = curl_out['service_response']['stdout']
 # 2. repr()-CHECK (Pflicht vor str.replace)
 # python3 -c "c=open('/config/FILE').read(); [print(repr(l)) for l in c.splitlines() if 'Begriff' in l]"
 # Grund: Umlaute, Quotes, Whitespace können vom Screenshot abweichen → replace() schlägt lautlos fehl
-# ACHTUNG EOF: Letzte Zeile einer Datei hat oft KEIN trailing \n.
-#   Anker niemals mit \n abschließen wenn er auf der letzten Zeile liegt.
+# ACHTUNG EOF: Letzte Zeile einer Datei hat oft KEIN trailing 
+.
+#   Anker niemals mit 
+ abschließen wenn er auf der letzten Zeile liegt.
 #   Immer den Anker 1:1 aus repr()-Output kopieren — nie aus Screenshot oder Gedächtnis.
 
 # 3. ÄNDERN
@@ -424,6 +428,14 @@ NICHT standardmäßig vorhanden.
 Falls nicht verfügbar: File-Schreiben ausschließlich via `write_file`
 shell_command (§2.3). `open()` steht nur in Add-ons und SSH zur
 Verfügung — nicht in Automationen, Scripts oder template.yaml.
+
+### 2.10 SSH-Terminal — Verhaltensregeln
+
+- **Tab-URL nie verlassen** — Navigation weg vom SSH-Tab öffnet den Dialog
+  „Website verlassen?“ und bricht die Session unwiderruflich ab.
+- **Browser-Aktionen immer in neuem Tab** öffnen (`tabs_create_mcp`),
+  nie im SSH-Tab selbst navigieren.
+- **Fallback:** SSH-Tab-URL instanzspezifisch im SI/AW dokumentiert.
 
 ---
 
@@ -1502,7 +1514,9 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | `shell_command` ändern + `reload_all` | HA-Vollneustart | Kein reload-Service für shell_command |
 | REST Automation-POST mit `trigger:[...]` | `triggers:[...]` (Plural) | GET liefert immer Plural — inkonsistent |
 | `schedule`-Helper via REST anlegen | WS `schedule/create` via `run_python` (§9.4) | Kein config_flow, kein REST-Endpoint |
-| Anker mit \n am EOF der Datei | Anker aus `repr()`-Output kopieren (EOF hat oft kein trailing \n) | `str.replace()` schlägt lautlos fehl |
+| Anker mit 
+ am EOF der Datei | Anker aus `repr()`-Output kopieren (EOF hat oft kein trailing 
+) | `str.replace()` schlägt lautlos fehl |
 | LAG()-Window-Funktion in SQL-Diagnose | Subquery-Variante §18.2 | Zu viele Zeilen → JSONDecodeError "Extra data" |
 | `unit_of_measurement` ohne `state_class` | `state_class` + `device_class` ergänzen | Kein Eintrag in statistics_meta → keine Langzeit-Statistiken (verifiziert 08.03.2026) |
 | Template-Sensor mit `platform: integration` in template.yaml | In `sensor.yaml` | template.yaml kennt keine `platform:`-Einträge |
@@ -1596,3 +1610,41 @@ Nach jedem nicht-trivialen Schritt den passenden API-Call wählen:
 | Shell-Command ausgeführt | `rc=0` prüfen + stdout auf Inhalt validieren |
 | Template-Sensor neu/geändert | `POST /api/template` mit Ausdruck direkt testen |
 | Helper-Wert gesetzt | `GET /api/states/<helper_entity_id>` |
+
+---
+
+## 24. Telegram — notify-Service (verifiziert 09.03.2026, LB + RBO)
+
+### 24.1 Service-Aufruf
+```bash
+POST /api/services/telegram_bot/send_message?return_response
+{
+  "config_entry_id": "[TELEGRAM_ENTRY_ID]",
+  "chat_id": "[TELEGRAM_CHAT_ID]",
+  "message": "Text",
+  "parse_mode": "markdownv2"
+}
+```
+
+**Parameter:**
+- `config_entry_id` → Pflicht (instanzspezifisch im SI/AW)
+- `chat_id` → optional; ohne chat_id → alle konfigurierten Chats
+- `parse_mode` → Top-Level-Parameter (NICHT in `data{}` verschachtelt)
+- `entity_id` → funktioniert **nicht** (HTTP 500)
+
+Service-Domain: `telegram_bot` (nicht `notify`) — live prüfen via `GET /api/services`.
+
+### 24.2 parse_mode markdownv2 — Sonderzeichen escapen (PFLICHT)
+
+Folgende Zeichen **müssen** mit `\\` escaped werden:
+`_ * [ ] ( ) ~ \` > # + - = | { } . !`
+
+**Falsch:** `"Temperatur: 21.5°C (Wohnzimmer) - Test #1"`
+**Richtig:** `"Temperatur: 21\\.5°C \\(Wohnzimmer\\) \\- Test \\#1"`
+
+**Python-Hilfsfunktion:**
+```python
+import re
+def tg_escape(text):
+    return re.sub(r'([_*\[\]()~`>#+\-=|{}.!\\\\])', r'\\\\\1', text)
+```
