@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.17.0"
+  version: "2.18.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.18.0 (09.03.2026): §0 ergänzt — Kanal-Abstimmungspflicht bei instanzübergreifenden
+      Wissensänderungen, [UNVERIFIZIERT]-Kennzeichnung im Kanal. Verifiziert LB + RBO.
     2.17.0 (09.03.2026): §§2.10+24 neu — SSH-Terminal-Verhaltensregeln (§2.10), Telegram notify-Service inkl. Escape-Funktion (§24). Verifiziert LB + RBO 09.03.2026.
     2.16.0 (09.03.2026): §23 neu — Verifikationstabelle nach Änderungen. §2.3 Kurzregel Shell-Command-Fehlerbehandlung ergänzt.
     2.15.0 (09.03.2026): §22 neu — CLAUDE.md-Template (Pflicht-Abschnitte + Regeln). §13 Hinweis auf Integrations-Abhängigkeit ergänzt. §15.1 Plattform-Hinweis präzisiert (Add-on vs. Docker).
@@ -99,6 +101,11 @@ metadata:
   - Querverweise prüfen: Verweist §X auf §Y? → §Y-Änderung erfordert §X-Check.
   - Nur live getestetes oder per API/Doku verifiziertes Wissen eintragen.
   - Version + Changelog bei jedem Update pflegen.
+  - **Instanzübergreifende Wissensänderungen** (API-Verhalten, neue §§, Templates):
+    Kanal-Abstimmung (lb-rbo-channel) vor PR Pflicht — nicht die Anwendung,
+    nur die Änderung gemeinsamen Wissens triggert Abstimmung.
+  - **Instanzübergreifende Behauptungen im Kanal:** mit `[UNVERIFIZIERT-LB]` /
+    `[UNVERIFIZIERT-RBO]` kennzeichnen, wenn nicht live getestet.
 
 ---
 
