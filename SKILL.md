@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.25.0"
+  version: "2.26.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.26.0 (11.03.2026): §2.7 urllib.request-Kommentar ergänzt — kein bash_tool-Wrapping,
+      r['service_response'] direkt abrufen (nicht r['stdout']['service_response']).
     2.25.0 (11.03.2026): §3.1 sensor.yaml Hinweis auf manuelle Anlage + !include-Einbindung. §3.2 check_config-Endpunkt präzisiert (api/config/core vs. services).
     2.24.0 (11.03.2026): §2.3b HTTP-500-Grenzwert korrigiert (~50→~95 KB, verifiziert per Binärsuche).
     2.23.0 (11.03.2026): §0 korrigiert — ha_check_update_notes existiert nicht (Tool heißt
@@ -447,6 +449,8 @@ def write_file(path, content):
         headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"},
         method="POST"
     )
+    # urllib.request liefert HA-JSON direkt — kein bash_tool-Wrapping!
+    # r['service_response'] direkt abrufen (NICHT r['stdout']['service_response'])
     return json.loads(urllib.request.urlopen(req).read())
 
 r = write_file("PFAD_RELATIV_ZU_CONFIG", c)   # z.B. "automations.yaml", "CLAUDE.md"
