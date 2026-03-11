@@ -25,7 +25,7 @@ metadata:
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
-    2.25.0 (11.03.2026): §3.1 sensor.yaml als optional markiert (nicht alle Instanzen). §3.2 check_config-Endpunkt präzisiert (api/config/core vs. services).
+    2.25.0 (11.03.2026): §3.1 sensor.yaml Hinweis auf manuelle Anlage + !include-Einbindung. §3.2 check_config-Endpunkt präzisiert (api/config/core vs. services).
     2.24.0 (11.03.2026): §2.3b HTTP-500-Grenzwert korrigiert (~50→~95 KB, verifiziert per Binärsuche).
     2.23.0 (11.03.2026): §0 korrigiert — ha_check_update_notes existiert nicht (Tool heißt
       ha_get_updates mit include_release_notes=True). GitHub-PRs-Behauptung „via MCP" war
@@ -501,7 +501,9 @@ Verfügung — nicht in Automationen, Scripts oder template.yaml.
 configuration.yaml  — !include: automations.yaml, template.yaml,
                                 scripts.yaml, scenes.yaml
 secrets.yaml        — Zugangsdaten (nie in anderen Dateien)
-sensor.yaml         — Legacy-Plattform-Sensoren (history_stats, integration etc.) [optional — nicht alle Instanzen]
+sensor.yaml         — Legacy-Plattform-Sensoren (history_stats, integration etc.)
+                      Nicht im HA-Standard enthalten — muss manuell angelegt und per
+                      `sensor: !include sensor.yaml` in configuration.yaml eingebunden werden.
 ```
 
 Neue **Template-Sensoren** ausschließlich in `template.yaml`.
