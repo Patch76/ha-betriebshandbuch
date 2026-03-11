@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.19.0"
+  version: "2.20.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.20.0 (11.03.2026): §22.2 Warnhinweis — CLAUDE.md-Änderungen ausschließlich
+      via §2.7 atomarer Zyklus (nie computer.type / cat-Heredoc).
     2.19.0 (11.03.2026): §0 ergänzt — ha_check_update_notes vor HA-Updates (Pflicht),
       GitHub-PRs via MCP immer als Draft (stille Verhaltensänderung ha-mcp v7.0.0).
     2.18.0 (09.03.2026): §0 ergänzt — Kanal-Abstimmungspflicht bei instanzübergreifenden
@@ -1534,6 +1536,7 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | `unit_of_measurement` ohne `state_class` | `state_class` + `device_class` ergänzen | Kein Eintrag in statistics_meta → keine Langzeit-Statistiken (verifiziert 08.03.2026) |
 | Template-Sensor mit `platform: integration` in template.yaml | In `sensor.yaml` | template.yaml kennt keine `platform:`-Einträge |
 | GitHub-PR via MCP direkt mergen | Erst „Ready" setzen (MCP erstellt immer Draft) | Seit ha-mcp v7.0.0 stille Verhaltensänderung |
+| CLAUDE.md per computer.type / cat-Heredoc schreiben | §2.7 atomarer Zyklus (read → modify → write_file) | Lautloser Datenverlust oder Teilüberschreibung |
 
 ---
 
@@ -1607,6 +1610,9 @@ Nummerierte Liste. Nach Erledigung entfernen — nie als "erledigt" markiert ste
 - **Keine konkreten Werte** die sich ändern können (Temperaturschwellen, Zeitpläne) → live via ha-mcp.
 - **Keine YAML-Blöcke** — die gehören in `automations.yaml`, nicht in `claude.md`.
 - **Credentials ausschließlich in `secrets.yaml`** — nie in `claude.md`.
+- **CLAUDE.md-Änderungen ausschließlich via §2.7 atomarer Lese-Modifizier-Schreib-Zyklus.**
+  Nie per `computer.type`, `cat`-Heredoc oder direktem String-Überschreiben ohne vorherigen read-Schritt.
+  Konsequenz bei Missachtung: lautloser Datenverlust oder inkompletter Schreibvorgang.
 - **Skill-Querverweise** statt Inhaltskopie: `→ Skill §4.1` statt den Regeltext zu wiederholen.
 - **Integrations-spezifische Abschnitte** (z.B. Better Thermostat, Android next_alarm) nur wenn die Integration auf dieser Instanz installiert ist.
 
