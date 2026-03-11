@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.26.0"
+  version: "2.27.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.27.0 (11.03.2026): §5.2 core.area_registry modified_at ergänzt. §5.4 input_boolean.icon als optional markiert; timer + counter Felder ergänzt.
     2.26.0 (11.03.2026): §2.7 urllib.request-Kommentar ergänzt — kein bash_tool-Wrapping,
       r['service_response'] direkt abrufen (nicht r['stdout']['service_response']).
     2.25.0 (11.03.2026): §3.1 sensor.yaml Hinweis auf manuelle Anlage + !include-Einbindung. §3.2 check_config-Endpunkt präzisiert (api/config/core vs. services).
@@ -649,7 +650,7 @@ Pflichtfelder unterscheiden sich je Datei:
 |-------|--------------------------|
 | `input_boolean` | **KEIN** created_at/modified_at |
 | `core.entity_registry` | ISO-String `"2026-02-28T16:35:45.181313+00:00"` |
-| `core.area_registry` | ISO-String `"2025-02-16T08:27:45.949597+00:00"` |
+| `core.area_registry` | ISO-String — `created_at` + `modified_at` (beide Pflicht) |
 | `core.device_registry` | ISO-String (nicht separat verifiziert — Vorlage lesen!) |
 | `core.label_registry` | ISO-String, `created_at` PFLICHT |
 
@@ -675,10 +676,12 @@ Die Hash-Formel `md5(unique_id)` liefert nicht den gespeicherten Wert — Herkun
 Jeder UI-Helper muss in **zwei** Storage-Dateien stehen:
 
 1. `/config/.storage/input_boolean` (o.ä.):
-   - `input_boolean`: `{id, name, icon}` — **kein** created_at/modified_at
+   - `input_boolean`: `{id, name, icon (optional)}` — **kein** created_at/modified_at
    - `input_select`: `{id, name, icon, options: [...], initial: "..."}`
    - `input_datetime`: `{id, name, icon: null, has_date: true, has_time: true, initial: null}`
    - `input_text`: `{id, name, icon, min: 0, max: 100, mode: "text"}` — **kein** created_at/modified_at
+  - `timer`: `{id, name, icon (optional), duration (optional), restore (optional)}` — **kein** created_at/modified_at
+  - `counter`: `{id, name, initial, restore, minimum, maximum, step}` — **kein** created_at/modified_at
 
 2. `/config/.storage/core.entity_registry`:
    - Alle Felder einer Vorlage kopieren, dann anpassen.
