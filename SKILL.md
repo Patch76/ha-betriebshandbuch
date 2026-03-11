@@ -20,11 +20,15 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.22.0"
+  version: "2.23.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.23.0 (11.03.2026): §0 korrigiert — ha_check_update_notes existiert nicht (Tool heißt
+      ha_get_updates mit include_release_notes=True). GitHub-PRs-Behauptung „via MCP" war
+      Fehlinterpretation einer ha-mcp-internen CI-Änderung (PR #723). Korrekt: PRs via
+      bash_tool/GitHub REST API mit "draft":true.
     2.22.0 (11.03.2026): §0 Kanal-Verifikationspflicht — empfangende Instanz prüft
       Behauptungen aus lb-rbo-channel live gegen eigene Instanz vor Umsetzung.
     2.21.0 (11.03.2026): §2.3 + §2.4 Pfad-Typ-Tabelle + Doppel-Slash-Falle dokumentiert
@@ -33,6 +37,7 @@ metadata:
       via §2.7 atomarer Zyklus (nie computer.type / cat-Heredoc).
     2.19.0 (11.03.2026): §0 ergänzt — ha_check_update_notes vor HA-Updates (Pflicht),
       GitHub-PRs via MCP immer als Draft (stille Verhaltensänderung ha-mcp v7.0.0).
+      ⚠️ KORRIGIERT in v2.23.0 (beide Punkte fehlerhaft, siehe dort).
     2.18.0 (09.03.2026): §0 ergänzt — Kanal-Abstimmungspflicht bei instanzübergreifenden
       Wissensänderungen, [UNVERIFIZIERT]-Kennzeichnung im Kanal. Verifiziert LB + RBO.
     2.17.0 (09.03.2026): §§2.10+24 neu — SSH-Terminal-Verhaltensregeln (§2.10), Telegram notify-Service inkl. Escape-Funktion (§24). Verifiziert LB + RBO 09.03.2026.
@@ -102,10 +107,10 @@ metadata:
   (Löschen, Entfernen, PR), immer einzeln und isoliert verifizieren — nie aus Schleifenergebnissen
   ableiten. Netzwerkfehler in Schleifen erzeugen Falsch-Negative.
 - **Neustart nur mit expliziter Benutzerbestätigung.**
-- **Vor HA-Updates: `ha_check_update_notes` ausführen** (Impact-Review, verfügbar ab ha-mcp v7.0.0).
+- **Vor HA-Updates: `ha_get_updates(entity_id="update.home_assistant_core_update", include_release_notes=True)` ausführen** (Impact-Review).
   Prüft Breaking Changes und Hinweise vor dem Update — Pflicht bevor `homeassistant/restart` nach einem Update ausgeführt wird.
-- **GitHub-PRs via MCP immer als Draft** (seit ha-mcp v7.0.0, verifiziert 11.03.2026).
-  PRs werden automatisch als Draft erstellt — manuell auf „Ready" setzen bevor Merge möglich ist.
+- **GitHub-PRs immer als Draft anlegen** (via bash_tool + GitHub REST API).
+  `"draft": true` im POST-Body an `POST /repos/Patch76/<repo>/pulls`. Manuell auf „Ready" setzen.
 - **Live abrufen statt fragen:** Ist ein Zustand per API prüfbar (Entity-State, last_triggered, Attribut), immer live abrufen — nie den Nutzer fragen. Fragen nur wenn der Kontext wirklich nicht abrufbar ist.
 - **Skill-Pflege (KRITISCH):** Beim Aktualisieren des Skills gilt:
   - Veraltetes Wissen **streichen oder als `⚠️ VERALTET` kennzeichnen** — nie still ergänzen.
