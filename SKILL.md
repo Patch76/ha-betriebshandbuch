@@ -25,7 +25,7 @@ metadata:
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
-    2.30.0 (11.03.2026): §5.4 Klarstellung Anlege-Reihenfolge UI-Helper — MCP `ha_create_config_entry_helper` unterstützt input_boolean/input_datetime NICHT; Storage-Weg ist korrekt, entity_registry wird automatisch ergänzt. §9.5 neu — Repairs-API: POST /api/repairs/issues/fix + Flow-Bestätigung, verifiziert mit Battery Notes (missing_device_*).
+    2.30.0 (11.03.2026): §5.4 Klarstellung UI-Helper anlegen — `ha_create_config_entry_helper` unterstützt input_boolean/input_datetime NICHT; Storage-Weg korrekt; `ha_reload_core(target=...)` statt HA-Neustart (verifiziert); entity_registry wird automatisch ergänzt. §9.5 neu — Repairs-API: POST /api/repairs/issues/fix + Flow-Bestätigung, verifiziert mit Battery Notes (missing_device_*).
     2.29.0 (11.03.2026): §6.6 Ghost-Entries verallgemeinert — gilt für alle Entity-Typen (Sensoren, Switches etc.), nicht nur Automationen; Pre/Post-Verifikationspflicht ergänzt.
     2.28.0 (11.03.2026): §6.6 Ghost-Automationen (restored: true) dokumentiert — Config-DELETE schlägt fehl, korrekte Lösung: DELETE /api/states/<entity_id>.
     2.27.0 (11.03.2026): §5.2 core.area_registry modified_at ergänzt. §5.4 input_boolean.icon als optional markiert; timer + counter Felder ergänzt.
@@ -676,12 +676,16 @@ Die Hash-Formel `md5(unique_id)` liefert nicht den gespeicherten Wert — Herkun
 
 ### 5.4 Doppelregistrierung bei UI-Helpern
 
-**Reihenfolge beim Anlegen (Pflicht):**
-1. **MCP zuerst:** `ha_config_remove_helper` existiert im MCP — analog gibt es keinen `ha_config_set_helper` für `input_boolean`/`input_datetime`, aber der **Storage-Weg ist der Fallback**, nicht der erste Schritt.
-   Für `input_boolean` / `input_datetime` / `input_select` etc.: Storage-Direktschreiben (§5.4 unten) + HA-Neustart.
-   ⚠️ MCP `ha_create_config_entry_helper` unterstützt diese Typen NICHT (nur template, group, utility_meter etc.).
-2. **Storage-Weg (Fallback):** Beide Dateien schreiben (siehe unten), dann HA-Neustart.
-   HA ergänzt `core.entity_registry` automatisch beim Start — manuelles Schreiben in entity_registry ist NICHT nötig.
+**Anlegen von `input_boolean` / `input_datetime` / `input_select` / `counter` / `timer`:**
+
+⚠️ `ha_create_config_entry_helper` unterstützt diese Typen **NICHT** (nur: template, group, utility_meter, derivative, min_max, threshold, integration, statistics, trend, random, filter, tod, generic_thermostat, switch_as_x, generic_hygrostat).
+
+**Korrekter Weg (verifiziert 11.03.2026):**
+1. Beide Storage-Dateien schreiben (siehe unten)
+2. `ha_reload_core(target="input_booleans")` bzw. `target="input_datetimes"` etc. aufrufen — **kein voller HA-Neustart nötig**
+3. HA ergänzt `core.entity_registry` automatisch — manuelles Schreiben in entity_registry ist NICHT nötig.
+
+`POST /api/config/config_entries/flow` mit `{"handler": "input_boolean"}` → `"message": "Invalid handler specified"` (kein Config-Flow-Handler).
 
 Jeder UI-Helper muss in **zwei** Storage-Dateien stehen:
 
