@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.23.0"
+  version: "2.24.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.24.0 (11.03.2026): §2.3b HTTP-500-Grenzwert korrigiert (~50→~95 KB, verifiziert per Binärsuche).
     2.23.0 (11.03.2026): §0 korrigiert — ha_check_update_notes existiert nicht (Tool heißt
       ha_get_updates mit include_release_notes=True). GitHub-PRs-Behauptung „via MCP" war
       Fehlinterpretation einer ha-mcp-internen CI-Änderung (PR #723). Korrekt: PRs via
@@ -287,8 +288,9 @@ const content = d.service_response.stdout;
 
 ### 2.3b write_file — HTTP-500-Limit bei großen Dateien (KRITISCH, verifiziert 07.03.2026)
 
-`write_file` via REST (bash_tool curl oder Browser-Fetch) **schlägt bei Payloads >~50 KB
+`write_file` via REST (bash_tool curl oder Browser-Fetch) **schlägt bei Payloads >~95 KB
 mit HTTP 500 fehl** — ohne aussagekräftige Fehlermeldung.
+(Verifiziert 11.03.2026: Grenzwert binär eingekreist 95–99 KB; frühere Angabe ~50 KB zu konservativ.)
 
 Betroffen sind insbesondere:
 - `core.entity_registry` (~2,5–3 MB)
@@ -316,8 +318,8 @@ PYEOF
 ```
 
 **Entscheidungsregel:**
-- Datei < ~50 KB → write_file via REST (bash_tool + urllib.request, §2.7) ausreichend
-- Datei > ~50 KB → **immer** direkt Python via SSH-Terminal
+- Datei < ~95 KB → write_file via REST (bash_tool + urllib.request, §2.7) ausreichend
+- Datei > ~95 KB → **immer** direkt Python via SSH-Terminal
 
 **Kurzbefehl zum Prüfen:**
 ```bash
