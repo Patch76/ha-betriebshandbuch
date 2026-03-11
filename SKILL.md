@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.28.0"
+  version: "2.29.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.29.0 (11.03.2026): §6.6 Ghost-Entries verallgemeinert — gilt für alle Entity-Typen (Sensoren, Switches etc.), nicht nur Automationen; Pre/Post-Verifikationspflicht ergänzt.
     2.28.0 (11.03.2026): §6.6 Ghost-Automationen (restored: true) dokumentiert — Config-DELETE schlägt fehl, korrekte Lösung: DELETE /api/states/<entity_id>.
     2.27.0 (11.03.2026): §5.2 core.area_registry modified_at ergänzt. §5.4 input_boolean.icon als optional markiert; timer + counter Felder ergänzt.
     2.26.0 (11.03.2026): §2.7 urllib.request-Kommentar ergänzt — kein bash_tool-Wrapping,
@@ -805,14 +806,23 @@ Nach DELETE: Entity ist **sofort weg** (GET → 404) — kein reload für Berein
 `automation/reload` danach nur wenn gesamte `automations.yaml` neu geladen werden soll.
 **Kein Vollneustart nötig** (Unterschied zu manueller YAML-Deletion!).
 
-**⚠️ Ghost-Automationen (`restored: true`):**
-Automationen können als State-Eintrag weiterexistieren, obwohl der Config-Eintrag bereits gelöscht ist.
+**⚠️ Ghost-Entries (`restored: true`) — gilt für alle Entity-Typen:**
+Entities (Automationen, Sensoren, Switches, …) können als State-Eintrag weiterexistieren, obwohl der
+Config-Eintrag bereits gelöscht ist. Typische Ursache: Integration-Update mit Entity-ID-Umbenennung,
+oder manuelle Config-Löschung ohne anschließenden Neustart.
 Erkennungszeichen: `state: unavailable` + Attribut `"restored": true` (via `GET /api/states/<entity_id>`).
-In diesem Fall schlägt `DELETE /api/config/automation/config/<id>` mit 400 fehl — die Config ist nicht mehr vorhanden.
-Korrekte Lösung: `DELETE /api/states/<entity_id>` (State-Maschine direkt bereinigen).
+Jede `ha_config_remove_*`-Methode schlägt in diesem Fall fehl (400/404) — die Config existiert nicht mehr.
+Korrekte Lösung für alle Ghost-Typen: `DELETE /api/states/<entity_id>` (State-Maschine direkt bereinigen).
 ```bash
-DELETE /api/states/automation.meine_ghost_automation
+# Verifikation vor dem Löschen (Pflicht):
+GET /api/states/<entity_id>  → prüfen auf "restored": true
+
+# Löschen:
+DELETE /api/states/<entity_id>
 → {"message":"Entity removed."} HTTP 200
+
+# Post-Verifikation:
+GET /api/states/<entity_id>  → 404 erwartet
 ```
 
 **WICHTIG:** `entity_id` wird aus `alias` abgeleitet, nicht aus `<automation_id>` im URL.
