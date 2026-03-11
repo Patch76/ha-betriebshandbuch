@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.18.0"
+  version: "2.19.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.19.0 (11.03.2026): §0 ergänzt — ha_check_update_notes vor HA-Updates (Pflicht),
+      GitHub-PRs via MCP immer als Draft (stille Verhaltensänderung ha-mcp v7.0.0).
     2.18.0 (09.03.2026): §0 ergänzt — Kanal-Abstimmungspflicht bei instanzübergreifenden
       Wissensänderungen, [UNVERIFIZIERT]-Kennzeichnung im Kanal. Verifiziert LB + RBO.
     2.17.0 (09.03.2026): §§2.10+24 neu — SSH-Terminal-Verhaltensregeln (§2.10), Telegram notify-Service inkl. Escape-Funktion (§24). Verifiziert LB + RBO 09.03.2026.
@@ -94,6 +96,10 @@ metadata:
   (Löschen, Entfernen, PR), immer einzeln und isoliert verifizieren — nie aus Schleifenergebnissen
   ableiten. Netzwerkfehler in Schleifen erzeugen Falsch-Negative.
 - **Neustart nur mit expliziter Benutzerbestätigung.**
+- **Vor HA-Updates: `ha_check_update_notes` ausführen** (Impact-Review, verfügbar ab ha-mcp v7.0.0).
+  Prüft Breaking Changes und Hinweise vor dem Update — Pflicht bevor `homeassistant/restart` nach einem Update ausgeführt wird.
+- **GitHub-PRs via MCP immer als Draft** (seit ha-mcp v7.0.0, verifiziert 11.03.2026).
+  PRs werden automatisch als Draft erstellt — manuell auf „Ready" setzen bevor Merge möglich ist.
 - **Live abrufen statt fragen:** Ist ein Zustand per API prüfbar (Entity-State, last_triggered, Attribut), immer live abrufen — nie den Nutzer fragen. Fragen nur wenn der Kontext wirklich nicht abrufbar ist.
 - **Skill-Pflege (KRITISCH):** Beim Aktualisieren des Skills gilt:
   - Veraltetes Wissen **streichen oder als `⚠️ VERALTET` kennzeichnen** — nie still ergänzen.
@@ -1527,6 +1533,7 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | LAG()-Window-Funktion in SQL-Diagnose | Subquery-Variante §18.2 | Zu viele Zeilen → JSONDecodeError "Extra data" |
 | `unit_of_measurement` ohne `state_class` | `state_class` + `device_class` ergänzen | Kein Eintrag in statistics_meta → keine Langzeit-Statistiken (verifiziert 08.03.2026) |
 | Template-Sensor mit `platform: integration` in template.yaml | In `sensor.yaml` | template.yaml kennt keine `platform:`-Einträge |
+| GitHub-PR via MCP direkt mergen | Erst „Ready" setzen (MCP erstellt immer Draft) | Seit ha-mcp v7.0.0 stille Verhaltensänderung |
 
 ---
 
