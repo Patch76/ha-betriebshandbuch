@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.24.0"
+  version: "2.25.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.25.0 (11.03.2026): §3.1 sensor.yaml als optional markiert (nicht alle Instanzen). §3.2 check_config-Endpunkt präzisiert (api/config/core vs. services).
     2.24.0 (11.03.2026): §2.3b HTTP-500-Grenzwert korrigiert (~50→~95 KB, verifiziert per Binärsuche).
     2.23.0 (11.03.2026): §0 korrigiert — ha_check_update_notes existiert nicht (Tool heißt
       ha_get_updates mit include_release_notes=True). GitHub-PRs-Behauptung „via MCP" war
@@ -500,7 +501,7 @@ Verfügung — nicht in Automationen, Scripts oder template.yaml.
 configuration.yaml  — !include: automations.yaml, template.yaml,
                                 scripts.yaml, scenes.yaml
 secrets.yaml        — Zugangsdaten (nie in anderen Dateien)
-sensor.yaml         — Legacy-Plattform-Sensoren (history_stats, integration etc.)
+sensor.yaml         — Legacy-Plattform-Sensoren (history_stats, integration etc.) [optional — nicht alle Instanzen]
 ```
 
 Neue **Template-Sensoren** ausschließlich in `template.yaml`.
@@ -521,6 +522,8 @@ Neue **Template-Sensoren** ausschließlich in `template.yaml`.
 ```
   Grund: Umlaute, Quotes, Whitespace können abweichen → `replace()` schlägt lautlos fehl.
 - **Workflow:** Änderung → `check_config` → `reload`/Restart → API-Verifikation.
+  `check_config` = `POST /api/config/core/check_config` → `{"result":"valid","errors":null}`
+  NICHT `POST /api/services/homeassistant/check_config` — gibt `[]` zurück (kein Response-Support).
 
 ---
 
