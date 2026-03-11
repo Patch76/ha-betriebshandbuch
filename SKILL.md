@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.21.0"
+  version: "2.22.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.22.0 (11.03.2026): §0 Kanal-Verifikationspflicht — empfangende Instanz prüft
+      Behauptungen aus lb-rbo-channel live gegen eigene Instanz vor Umsetzung.
     2.21.0 (11.03.2026): §2.3 + §2.4 Pfad-Typ-Tabelle + Doppel-Slash-Falle dokumentiert
       (write_file/delete_file relativ, read_file absolut). Anti-Pattern ergänzt.
     2.20.0 (11.03.2026): §22.2 Warnhinweis — CLAUDE.md-Änderungen ausschließlich
@@ -116,6 +118,20 @@ metadata:
     nur die Änderung gemeinsamen Wissens triggert Abstimmung.
   - **Instanzübergreifende Behauptungen im Kanal:** mit `[UNVERIFIZIERT-LB]` /
     `[UNVERIFIZIERT-RBO]` kennzeichnen, wenn nicht live getestet.
+- **Kanal-Verifikationspflicht beim Einlesen (KRITISCH):**
+  Behauptungen aus `lb_to_rbo.md` / `rbo_to_lb.md` **nie blind übernehmen** — immer
+  live gegen die eigene Instanz gegenchecken, bevor eine Änderung umgesetzt wird.
+
+  | Behauptungstyp | Verifikation |
+  |---|---|
+  | Skill-Version X | `curl SKILL.md \| grep version` → tatsächliche Version prüfen |
+  | CLAUDE.md wurde geändert | `read_file /config/CLAUDE.md` → Stichprobe der behaupteten Stelle |
+  | API-Verhalten (z.B. Pfad-Regel) | Testaufruf mit bekanntem Ergebnis durchführen |
+  | MCP-Tool verfügbar | `ha_list_services` oder Tool direkt aufrufen |
+  | Nicht testbar | Als `[UNVERIFIZIERT]` kennzeichnen — nie stillschweigend als wahr annehmen |
+
+  Ergebnis der Verifikation in der eigenen Antwort-Nachricht (`rbo_to_lb.md` / `lb_to_rbo.md`)
+  kurz dokumentieren: ✓ verifiziert / ✗ abweichend (mit Befund).
 
 ---
 
@@ -1554,6 +1570,7 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | GitHub-PR via MCP direkt mergen | Erst „Ready" setzen (MCP erstellt immer Draft) | Seit ha-mcp v7.0.0 stille Verhaltensänderung |
 | CLAUDE.md per computer.type / cat-Heredoc schreiben | §2.7 atomarer Zyklus (read → modify → write_file) | Lautloser Datenverlust oder Teilüberschreibung |
 | `write_file`/`delete_file` mit absolutem Pfad (`/config/datei`) | Relativen Pfad verwenden (`datei`) | Doppel-Slash `/config//config/...` → falsche Datei oder Fehler |
+| Kanalnachricht blind umsetzen ohne Gegencheck | Behauptungen live verifizieren (§0 Kanal-Verifikationspflicht) | Fehler der Gegenstelle pflanzen sich fort |
 
 ---
 
