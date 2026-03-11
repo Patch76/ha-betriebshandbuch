@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.20.0"
+  version: "2.21.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.21.0 (11.03.2026): §2.3 + §2.4 Pfad-Typ-Tabelle + Doppel-Slash-Falle dokumentiert
+      (write_file/delete_file relativ, read_file absolut). Anti-Pattern ergänzt.
     2.20.0 (11.03.2026): §22.2 Warnhinweis — CLAUDE.md-Änderungen ausschließlich
       via §2.7 atomarer Zyklus (nie computer.type / cat-Heredoc).
     2.19.0 (11.03.2026): §0 ergänzt — ha_check_update_notes vor HA-Updates (Pflicht),
@@ -252,6 +254,9 @@ const content = d.service_response.stdout;
 
 - Parameter für Dateiname heißt `path` (NICHT `filename` — das ist read_file!).
   Falscher Parametername → IsADirectoryError (`open('/config/' + '', ...)`).
+- **`path` muss relativ sein** — `/config/` wird automatisch vorangestellt.
+  `path: "CLAUDE.md"` → schreibt nach `/config/CLAUDE.md` ✓
+  `path: "/config/CLAUDE.md"` → schreibt nach `/config//config/CLAUDE.md` ✗ (Doppel-Slash-Falle!)
 - Parameter für Inhalt heißt `content_b64` (NICHT `content`).
   Falscher Parametername → **leere Datei**, returncode 0, kein Fehler!
 - `write_file` schreibt **IMMER** nach `/config/` (hardcoded Prefix). Kein Schreiben nach `/tmp/`.
@@ -310,9 +315,20 @@ Aufruf:
 ```bash
 POST /api/services/shell_command/delete_file?return_response
 Body: {"path": "dateiname.txt"}   # relativ zu /config/ — genau wie write_file
+# NIEMALS absoluten Pfad: {"path": "/config/dateiname.txt"} → /config//config/dateiname.txt (Fehler!)
 ```
 - `rm -f` → rc=0 auch wenn Datei nicht existiert (kein Fehler).
 - Nur innerhalb `/config/` möglich (hardcoded Prefix).
+
+**Pfad-Typ-Übersicht (KRITISCH):**
+
+| Command | Parameter | Pfad-Typ | Beispiel korrekt |
+|---------|-----------|----------|-----------------|
+| `read_file` | `filename` | **absolut** | `"/config/CLAUDE.md"` |
+| `write_file` | `path` | **relativ** | `"CLAUDE.md"` |
+| `delete_file` | `path` | **relativ** | `"CLAUDE.md"` |
+
+Absoluter Pfad bei `write_file`/`delete_file` → Doppel-Slash `/config//config/...` → Datei landet falsch oder Fehler.
 - **Nach Ergänzung in configuration.yaml: HA-Vollneustart erforderlich** (kein shell_command-Reload).
 
 ### 2.5 read_file
@@ -1537,6 +1553,7 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | Template-Sensor mit `platform: integration` in template.yaml | In `sensor.yaml` | template.yaml kennt keine `platform:`-Einträge |
 | GitHub-PR via MCP direkt mergen | Erst „Ready" setzen (MCP erstellt immer Draft) | Seit ha-mcp v7.0.0 stille Verhaltensänderung |
 | CLAUDE.md per computer.type / cat-Heredoc schreiben | §2.7 atomarer Zyklus (read → modify → write_file) | Lautloser Datenverlust oder Teilüberschreibung |
+| `write_file`/`delete_file` mit absolutem Pfad (`/config/datei`) | Relativen Pfad verwenden (`datei`) | Doppel-Slash `/config//config/...` → falsche Datei oder Fehler |
 
 ---
 
