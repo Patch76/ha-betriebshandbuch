@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.32.0"
+  version: "2.33.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.33.0 (12.03.2026): §25 neu — Companion App notify-Service; actionable notifications (wait_for_trigger-Pattern); replace(_,space)-Best-Practice für Template-Messages; Migration RBO Telegram→Companion App dokumentiert.
     2.32.0 (12.03.2026): §24.3 neu — `target:`-Parameter deprecated seit 2026.3 (Entfernung in 2026.9); `chat_id` ist korrekte Syntax; RBO-Automationen bereits compliant.
     2.31.0 (12.03.2026): §6.6 Ghost-Update-Entity (Supervisor-Add-on) ergänzt — orphaned Repository-Fix via `ha store delete <slug>`.
     2.30.0 (11.03.2026): §5.4 Klarstellung UI-Helper anlegen — `ha_create_config_entry_helper` unterstützt input_boolean/input_datetime NICHT; Storage-Weg korrekt; `ha_reload_core(target=...)` statt HA-Neustart (verifiziert); entity_registry wird automatisch ergänzt. §9.5 neu — Repairs-API: POST /api/repairs/issues/fix + Flow-Bestätigung, verifiziert mit Battery Notes (missing_device_*).
@@ -1831,3 +1832,79 @@ data:
 ```
 
 **Status RBO:** Automationen verwenden `chat_id` — kein Handlungsbedarf.
+
+---
+
+## 25. Android Companion App — Notify-Service (verifiziert 12.03.2026, RBO)
+
+### 25.1 Service-Aufruf
+
+```yaml
+action: notify.mobile_app_<geräte_slug>
+data:
+  title: "🔔 Titel"
+  message: "Text"
+```
+
+Kein `parse_mode`, kein Escaping nötig — plain text funktioniert direkt.
+
+### 25.2 Actionable Notifications (Kat B — Kann-Eingriff)
+
+```yaml
+action: notify.mobile_app_xiaomi_14t_pro_mk
+data:
+  title: "🌙 Nachtruhe aktiv"
+  message: "Lichter aus, Heizung auf Sleep."
+  data:
+    actions:
+      - action: "nachtruhe_beenden"
+        title: "☀️ Beenden"
+```
+
+Anschließend `wait_for_trigger` auf `mobile_app_notification_action`:
+
+```yaml
+- wait_for_trigger:
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: "nachtruhe_beenden"
+  timeout: "08:00:00"
+  continue_on_timeout: true
+- if:
+    - condition: template
+      value_template: "{{ wait.trigger is not none }}"
+  then: [Eingriff-Pfad]
+  else: [Timeout-Pfad]
+```
+
+**Wichtig:** Action-String muss exakt übereinstimmen (case-sensitive). Timeout + `continue_on_timeout: true` immer setzen.
+
+**Android-Verhalten:**
+- `title:` → immer fett, vollständig sichtbar (collapsed + expanded)
+- `message:` → collapsed: nur 1 Zeile, expanded: vollständiger Text
+- Action-Buttons → nur im expanded state sichtbar
+- HTML (`<b>`, `<i>`, `<br>`) → nur im expanded state, sonst plain text
+
+### 25.3 Template-Best-Practice: `replace('_', ' ')`
+
+Bei dynamischen Entity-Namen in `message:` immer `replace('_', ' ')` anwenden — entity_ids wirken sonst unnatürlich (z. B. „Echte_Bewegung"):
+
+```yaml
+# Richtig
+message: "{{ (trigger.to_state.attributes.friendly_name | default(trigger.entity_id)) | replace('_', ' ') }}"
+
+# Falsch
+message: "{{ trigger.to_state.attributes.friendly_name | default(trigger.entity_id) }}"
+```
+
+Gilt auch für alle anderen Template-Variablen, die entity_ids oder interne Bezeichner enthalten können.
+
+### 25.4 Migration Telegram → Companion App (RBO, 12.03.2026)
+
+Alle 18 Telegram-Automationen auf RBO auf `notify.mobile_app_xiaomi_14t_pro_mk` migriert:
+- `telegram_bot.send_message` → `notify.mobile_app_xiaomi_14t_pro_mk`
+- `parse_mode` + Escaping entfällt
+- `inline_keyboard` → `wait_for_trigger` + `data.actions`
+- `automation.abwesenheit_telegram_steuerung` (Callback-Handler) gelöscht
+- Backup vor Migration: `57bd9c46`, nach Migration: `00173094`
