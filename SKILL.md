@@ -25,7 +25,7 @@ metadata:
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
-    2.30.0 (12.03.2026): §6.6 Ghost-Update-Entity (Supervisor-Add-on) ergänzt — orphaned Repository-Fix via `ha store delete <slug>`.
+    2.31.0 (12.03.2026): §6.6 Ghost-Update-Entity (Supervisor-Add-on) ergänzt — orphaned Repository-Fix via `ha store delete <slug>`.
     2.29.0 (11.03.2026): §6.6 Ghost-Entries verallgemeinert — gilt für alle Entity-Typen (Sensoren, Switches etc.), nicht nur Automationen; Pre/Post-Verifikationspflicht ergänzt.
     2.28.0 (11.03.2026): §6.6 Ghost-Automationen (restored: true) dokumentiert — Config-DELETE schlägt fehl, korrekte Lösung: DELETE /api/states/<entity_id>.
     2.27.0 (11.03.2026): §5.2 core.area_registry modified_at ergänzt. §5.4 input_boolean.icon als optional markiert; timer + counter Felder ergänzt.
