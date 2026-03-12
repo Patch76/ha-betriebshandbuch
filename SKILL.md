@@ -20,7 +20,7 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.35.0"
+  version: "2.36.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
@@ -1665,7 +1665,7 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 |---|---|---|
 | `condition: template` mit `float > 25` | `condition: numeric_state` | Validiert bei Load, nicht Runtime |
 | `wait_template` für „erst noch eintreten" | `wait_for_trigger` | Semantik verschieden |
-| `device_id` in Triggers | `entity_id` (oder `device_ieee` für ZHA) | device_id bricht bei Re-Add |
+| `device_id` in Triggers (Ausnahme: Z2M Zigbee-Remote-Actions — kein `entity_id`-Äquivalent) | `entity_id` bevorzugen; für Z2M Remote-Actions `device_id` akzeptabel (off. Z2M-Empfehlung) | `device_id` bricht bei Neuanlernen; kein Templating, kein `repeat/until` möglich |
 | `mode: single` für Bewegungslicht | `mode: restart` | Re-Trigger muss Timer resetten |
 | Template-Sensor für Summe/Mittel | `min_max` Helper | Deklarativ, handled unavailable |
 | Template-Sensor mit Schwellwert | `threshold` Helper | Eingebaute Hysterese |
