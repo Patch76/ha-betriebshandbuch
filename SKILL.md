@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.33.0"
+  version: "2.34.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.34.0 (12.03.2026): §24.3 Status korrigiert — RBO vollständig auf Companion App migriert; Script nachtruhe_anfrage_senden (letztes Telegram-Relikt) gelöscht.
     2.33.0 (12.03.2026): §25 neu — Companion App notify-Service; actionable notifications (wait_for_trigger-Pattern); replace(_,space)-Best-Practice für Template-Messages; Migration RBO Telegram→Companion App dokumentiert.
     2.32.0 (12.03.2026): §24.3 neu — `target:`-Parameter deprecated seit 2026.3 (Entfernung in 2026.9); `chat_id` ist korrekte Syntax; RBO-Automationen bereits compliant.
     2.31.0 (12.03.2026): §6.6 Ghost-Update-Entity (Supervisor-Add-on) ergänzt — orphaned Repository-Fix via `ha store delete <slug>`.
@@ -1831,7 +1832,7 @@ data:
     - -1002785392751
 ```
 
-**Status RBO:** Automationen verwenden `chat_id` — kein Handlungsbedarf.
+**Status RBO:** Alle Automationen auf Companion App migriert (12.03.2026). Script `nachtruhe_anfrage_senden` (letztes Telegram-Relikt) gelöscht — kein Telegram-Aufruf mehr aktiv.
 
 ---
 
