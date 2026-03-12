@@ -25,6 +25,7 @@ metadata:
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.30.0 (12.03.2026): §6.6 Ghost-Update-Entity (Supervisor-Add-on) ergänzt — orphaned Repository-Fix via `ha store delete <slug>`.
     2.29.0 (11.03.2026): §6.6 Ghost-Entries verallgemeinert — gilt für alle Entity-Typen (Sensoren, Switches etc.), nicht nur Automationen; Pre/Post-Verifikationspflicht ergänzt.
     2.28.0 (11.03.2026): §6.6 Ghost-Automationen (restored: true) dokumentiert — Config-DELETE schlägt fehl, korrekte Lösung: DELETE /api/states/<entity_id>.
     2.27.0 (11.03.2026): §5.2 core.area_registry modified_at ergänzt. §5.4 input_boolean.icon als optional markiert; timer + counter Felder ergänzt.
@@ -829,6 +830,29 @@ GET /api/states/<entity_id>  → 404 erwartet
 ```
 alias: "Meine Automation" → automation.meine_automation
 ```
+
+**⚠️ Ghost-Update-Entity (orphaned Supervisor-Add-on-Repository):**
+Ursache: Add-on deinstalliert, aber das zugehörige Supervisor-Repository noch registriert.
+Symptom: Update-Popup zeigt "Entity not found"; `GET /api/states/update.<name>_update` → 404;
+Neustart und "Überspringen" ohne Wirkung. Kein `restored: true` — Eintrag nur in `core.restore_state`.
+Abgrenzung zu §6.6: Entity hat keinen Live-State → `DELETE /api/states/` schlägt fehl (404, erwartet).
+```bash
+# Diagnose:
+# 1. Slug aus entity_picture-Attribut in core.restore_state ermitteln:
+#    /api/hassio/addons/<slug>_<name>/icon  → Slug = <slug>
+#    (nur Supervisor-Add-ons; HACS-Entities haben kein entity_picture mit Slug)
+# 2. Bestätigen:
+ha_get_addon(source="available", query="<name>")  # → Repo-Slug sichtbar, addons nicht leer
+
+# Fix (SSH-Terminal):
+ha store delete <slug>   # nur Custom-Repos; Built-ins nicht löschbar
+
+# Post-Check:
+ha_get_addon(source="available", query="<name>")  # → addons: []
+ha_get_updates()                                   # → 0 offene Updates
+```
+Kein HA-Neustart erforderlich. Stale-Eintrag in core.restore_state entfällt beim nächsten HA-Start automatisch.
+
 
 ### 6.7 Services
 ```bash
