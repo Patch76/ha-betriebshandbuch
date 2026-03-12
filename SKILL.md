@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.31.0"
+  version: "2.32.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.32.0 (12.03.2026): §24.3 neu — `target:`-Parameter deprecated seit 2026.3 (Entfernung in 2026.9); `chat_id` ist korrekte Syntax; RBO-Automationen bereits compliant.
     2.31.0 (12.03.2026): §6.6 Ghost-Update-Entity (Supervisor-Add-on) ergänzt — orphaned Repository-Fix via `ha store delete <slug>`.
     2.30.0 (11.03.2026): §5.4 Klarstellung UI-Helper anlegen — `ha_create_config_entry_helper` unterstützt input_boolean/input_datetime NICHT; Storage-Weg korrekt; `ha_reload_core(target=...)` statt HA-Neustart (verifiziert); entity_registry wird automatisch ergänzt. §9.5 neu — Repairs-API: POST /api/repairs/issues/fix + Flow-Bestätigung, verifiziert mit Battery Notes (missing_device_*).
     2.29.0 (11.03.2026): §6.6 Ghost-Entries verallgemeinert — gilt für alle Entity-Typen (Sensoren, Switches etc.), nicht nur Automationen; Pre/Post-Verifikationspflicht ergänzt.
@@ -1808,3 +1809,25 @@ import re
 def tg_escape(text):
     return re.sub(r'([_*\[\]()~`>#+\-=|{}.!\\\\])', r'\\\\\1', text)
 ```
+
+### 24.3 `target:`-Parameter — Deprecated seit 2026.3 (Deadline: 2026.9)
+
+⚠️ Der Parameter `target:` in `telegram_bot.send_message` ist seit **HA 2026.3** deprecated und wird in **2026.9** entfernt.
+
+**Korrekte Syntax (bereits in §24.1 dokumentiert):**
+```yaml
+action: telegram_bot.send_message
+data:
+  config_entry_id: "..."
+  chat_id: -1002785392751   # ← korrekt, zukunftssicher
+  message: "Text"
+```
+
+**Nicht mehr verwenden:**
+```yaml
+data:
+  target:                   # ← deprecated seit 2026.3, entfällt in 2026.9
+    - -1002785392751
+```
+
+**Status RBO:** Automationen verwenden `chat_id` — kein Handlungsbedarf.
