@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.34.0"
+  version: "2.35.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.35.0 (12.03.2026): §13 Preset `activity` ergänzt (live verifiziert). §16.2 Hinweis auf `disabled_by: integration` für next_alarm + last_update_trigger — Aktivierung via REST PUT entry_id.
     2.34.0 (12.03.2026): §24.3 Status korrigiert — RBO vollständig auf Companion App migriert; Script nachtruhe_anfrage_senden (letztes Telegram-Relikt) gelöscht.
     2.33.0 (12.03.2026): §25 neu — Companion App notify-Service; actionable notifications (wait_for_trigger-Pattern); replace(_,space)-Best-Practice für Template-Messages; Migration RBO Telegram→Companion App dokumentiert.
     2.32.0 (12.03.2026): §24.3 neu — `target:`-Parameter deprecated seit 2026.3 (Entfernung in 2026.9); `chat_id` ist korrekte Syntax; RBO-Automationen bereits compliant.
@@ -1221,7 +1222,7 @@ DELETE /api/config/config_entries/entry/<config_entry_id>
 ```
 number.heizung_<RAUM>_preset_<PRESETNAME>
 ```
-Preset-Namen: `away`, `home`, `sleep`, `comfort`, `eco`, `boost`.
+Preset-Namen: `away`, `home`, `sleep`, `comfort`, `eco`, `boost`, `activity`.
 
 ### 13.1 Preset-Abbruch-Logik
 
@@ -1326,6 +1327,16 @@ Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
 | Kalender verdrängt Wecker | `com.xiaomi.calendar` o.ä. erscheint als nächster Eintrag wenn zeitlich früher |
 | Timer ≠ Wecker nicht trennbar | Beide laufen unter `com.android.deskclock` |
 | Kurz vor Alarmzeit `unavailable` | Sensor kann unmittelbar vor Auslösung seinen State verlieren |
+
+> **`disabled_by: integration`:** Die Companion-App-Integration deaktiviert den Sensor standardmäßig.
+> Aktivierung via REST:
+> ```bash
+> PUT /api/config/entity_registry/entry/<entry_id>
+> Body: {"disabled_by": null}
+> ```
+> Oder: `ha_set_entity(entity_id="sensor.<gerät>_next_alarm", disabled_by=null)`.
+> Nach Aktivierung: 60-Sekunden-Wartezeit, dann HA-Reload der Companion-App-Integration.
+> `sensor.<gerät>_last_update_trigger` ist ebenfalls `disabled_by: integration` — zusammen aktivieren.
 
 ### 16.3 Best Practice
 
