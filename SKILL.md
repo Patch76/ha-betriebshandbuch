@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.37.0"
+  version: "2.38.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.38.0 (14.03.2026): §20 Anti-Pattern — `enabled: false` in automations.yaml für UI-Automationen → Repair-Issue. Korrekt: `ha_set_entity(enabled=False)`.
     2.37.0 (14.03.2026): §13.1 Preset-Abbruch — Restore-Schritt MUSS vor Helper-Leeren erfolgen (Bug-Pattern + Anti-Pattern dokumentiert). §16.2 next_alarm als unzuverlässig eingestuft.
     2.36.0 (12.03.2026): §13 Preset `activity` ergänzt (live verifiziert). §16.2 Hinweis auf `disabled_by: integration` für next_alarm + last_update_trigger — Aktivierung via REST PUT entry_id.
     2.34.0 (12.03.2026): §24.3 Status korrigiert — RBO vollständig auf Companion App migriert; Script nachtruhe_anfrage_senden (letztes Telegram-Relikt) gelöscht.
@@ -1711,6 +1712,7 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | GitHub-PR via MCP direkt mergen | Erst „Ready" setzen (MCP erstellt immer Draft) | Seit ha-mcp v7.0.0 stille Verhaltensänderung |
 | CLAUDE.md per computer.type / cat-Heredoc schreiben | §2.7 atomarer Zyklus (read → modify → write_file) | Lautloser Datenverlust oder Teilüberschreibung |
 | `write_file`/`delete_file` mit absolutem Pfad (`/config/datei`) | Relativen Pfad verwenden (`datei`) | Doppel-Slash `/config//config/...` → falsche Datei oder Fehler |
+| `enabled: false` in `automations.yaml` für UI-verwaltete Automation | `ha_set_entity(entity_id=..., enabled=False)` (Entity Registry) | YAML-Flag vs. Registry-State → Konflikt → Repair-Issue „konnte nicht eingerichtet werden"; `check_config` erkennt diesen Fehler NICHT |
 | Kanalnachricht blind umsetzen ohne Gegencheck | Behauptungen live verifizieren (§0 Kanal-Verifikationspflicht) | Fehler der Gegenstelle pflanzen sich fort |
 
 ---
