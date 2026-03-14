@@ -20,12 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.36.0"
+  version: "2.37.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
-    2.35.0 (12.03.2026): §13 Preset `activity` ergänzt (live verifiziert). §16.2 Hinweis auf `disabled_by: integration` für next_alarm + last_update_trigger — Aktivierung via REST PUT entry_id.
+    2.37.0 (14.03.2026): §13.1 Preset-Abbruch — Restore-Schritt MUSS vor Helper-Leeren erfolgen (Bug-Pattern + Anti-Pattern dokumentiert). §16.2 next_alarm als unzuverlässig eingestuft.
+    2.36.0 (12.03.2026): §13 Preset `activity` ergänzt (live verifiziert). §16.2 Hinweis auf `disabled_by: integration` für next_alarm + last_update_trigger — Aktivierung via REST PUT entry_id.
     2.34.0 (12.03.2026): §24.3 Status korrigiert — RBO vollständig auf Companion App migriert; Script nachtruhe_anfrage_senden (letztes Telegram-Relikt) gelöscht.
     2.33.0 (12.03.2026): §25 neu — Companion App notify-Service; actionable notifications (wait_for_trigger-Pattern); replace(_,space)-Best-Practice für Template-Messages; Migration RBO Telegram→Companion App dokumentiert.
     2.32.0 (12.03.2026): §24.3 neu — `target:`-Parameter deprecated seit 2026.3 (Entfernung in 2026.9); `chat_id` ist korrekte Syntax; RBO-Automationen bereits compliant.
@@ -1235,6 +1236,21 @@ Muster für Original-Wert sichern/wiederherstellen:
 - Vor Eingriff: aktiven Preset + Temperatur in `input_text` speichern
 - Nach Eingriff/Abbruch: `input_text`-Werte zurückschreiben, Boolean `off`
 
+**⚠️ KRITISCH — Reihenfolge in Abbruch-Automation (verifiziert 14.03.2026):**
+Der Restore-Schritt (Preset-Wert zurückschreiben) MUSS **vor** dem Leeren der Helper erfolgen.
+Werden die `input_text`-Helper zuerst geleert, ist der ursprüngliche Wert verloren → erhöhter Preset bleibt dauerhaft stehen.
+
+Korrekte Reihenfolge:
+1. `number.set_value` → Preset-Wert aus `input_text.vorherige_temperatur` auf `input_text.vorheriger_preset` zurückschreiben
+2. `input_boolean.turn_off`
+3. `input_text.set_value` → vorheriger_preset löschen
+4. `input_text.set_value` → vorherige_temperatur löschen
+
+Anti-Pattern (falsch):
+1. `input_boolean.turn_off`
+2. Helper leeren ← Wert weg, Restore nicht mehr möglich
+3. (kein Restore-Schritt)
+
 ---
 
 ## 14. Zigbee-Bulbs — Flash-Workaround
@@ -1326,6 +1342,9 @@ Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
 | Deaktivierter Alarm nicht erkennbar | Sensor unterscheidet nicht zwischen aktivem und deaktiviertem Alarm |
 | Kalender verdrängt Wecker | `com.xiaomi.calendar` o.ä. erscheint als nächster Eintrag wenn zeitlich früher |
 | Timer ≠ Wecker nicht trennbar | Beide laufen unter `com.android.deskclock` |
+| Ganztägige Kalendertermine verdrängen Wecker | Unterscheidung nicht möglich — sensor meldet immer den zeitlich nächsten Eintrag |
+
+> **Praxisempfehlung (verifiziert RBO 14.03.2026):** Der next_alarm-Sensor ist zu unzuverlässig für produktive Automationen. Bei vorhandenem Bett-Drucksensor: Fallback via Sensor-Verlassen-Erkennung statt Wecker-Trigger. `automation.bad_vorkonditionieren_wecker` auf RBO gelöscht (14.03.2026).
 | Kurz vor Alarmzeit `unavailable` | Sensor kann unmittelbar vor Auslösung seinen State verlieren |
 
 > **`disabled_by: integration`:** Die Companion-App-Integration deaktiviert den Sensor standardmäßig.
@@ -1667,6 +1686,8 @@ Im Recorder **nicht** ausschließen wenn der Sensor im Energy-Dashboard als Eins
 | `wait_template` für „erst noch eintreten" | `wait_for_trigger` | Semantik verschieden |
 | `device_id` in Triggers (Ausnahme: Z2M Zigbee-Remote-Actions — kein `entity_id`-Äquivalent) | `entity_id` bevorzugen; für Z2M Remote-Actions `device_id` akzeptabel (off. Z2M-Empfehlung) | `device_id` bricht bei Neuanlernen; kein Templating, kein `repeat/until` möglich |
 | `mode: single` für Bewegungslicht | `mode: restart` | Re-Trigger muss Timer resetten |
+| Helper in Abbruch-Automation vor Restore leeren | Restore-Schritt (number.set_value) VOR Helper-Leeren | Helper-Wert weg → Preset bleibt dauerhaft erhöht (§13.1) |
+| `mode: single` bei Automation mit internem wait_for_trigger die re-triggert werden muss | `mode: restart` | single ignoriert zweiten Trigger während wait → Folgeaktionen laufen nicht |
 | Template-Sensor für Summe/Mittel | `min_max` Helper | Deklarativ, handled unavailable |
 | Template-Sensor mit Schwellwert | `threshold` Helper | Eingebaute Hysterese |
 | `initial:` bei input_number | weglassen | Setzt Wert nach Restart zurück |
