@@ -1443,16 +1443,16 @@ Input Mode muss auf **Button/Taster** stehen damit Event-Entity entsteht.
 | State-Trigger auf `event.*.event_type` mit `to:` Filter | shelly.click Event-Trigger | Bei identischem Folgeevent keine Auslösung (state ändert sich nicht) |
 | Input Mode = Switch + Detached für HA-Automation | Input Mode = Button + Detached | Switch+Detached erstellt kein auswertbares HA-Entity |
 
-## 16. Android Companion App — next_alarm Sensor
+## 26. Android Companion App — next_alarm Sensor
 
-### 16.1 Sensor-Verhalten (verifiziert)
+### 26.1 Sensor-Verhalten (verifiziert)
 
 - Liefert immer den zeitlich **nächsten** Alarm-Timestamp in UTC (`+00:00`).
 - Attribut `Package`: App, die den Alarm registriert hat.
 - Aktualisierungsrate: beim Laden oder alle ~15 Minuten (Einstellung „Akku sparen").
 - State-Format: ISO-Timestamp, z.B. `2026-03-08T06:00:00+00:00`.
 
-### 16.2 Bekannte Limitierungen
+### 26.2 Bekannte Limitierungen
 
 | Limitation | Erklärung |
 |---|---|
@@ -1474,7 +1474,7 @@ Input Mode muss auf **Button/Taster** stehen damit Event-Entity entsteht.
 > Nach Aktivierung: 60-Sekunden-Wartezeit, dann HA-Reload der Companion-App-Integration.
 > `sensor.<gerät>_last_update_trigger` ist ebenfalls `disabled_by: integration` — zusammen aktivieren.
 
-### 16.3 Best Practice
+### 26.3 Best Practice
 
 **Allowlist auf Deskclock beschränken** (Companion App → Sensor-Einstellungen → next_alarm Allowlist):
 ```
