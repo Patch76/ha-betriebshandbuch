@@ -20,7 +20,7 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.39.0"
+  version: "2.39.1"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
@@ -1252,6 +1252,57 @@ Anti-Pattern (falsch):
 1. `input_boolean.turn_off`
 2. Helper leeren ← Wert weg, Restore nicht mehr möglich
 3. (kein Restore-Schritt)
+
+### 13.2 Kalibrierungsmodi — Übersicht (verifiziert 15.03.2026)
+
+BT Options Flow ist **zweistufig** und vollständig via REST-API durchführbar (kein Storage-Eingriff, kein HA-Neustart):
+
+- **Schritt 1** (`step_id: user`): Sensoren + Basiseinstellungen
+- **Schritt 2** (`step_id: advanced`): Kalibrierung + Schutzfunktionen
+
+Achtung: Schritt 2 enthält **zwei separate Felder**:
+- `calibration` — Strategie: `local_calibration_based` | `target_temp_based` | `hybrid_calibration`
+- `calibration_mode` — Algorithmus: `default` | `fix_calibration` | `heating_power_calibration` | `no_calibration`
+
+Beide müssen explizit gesetzt werden. Wird nur `calibration` gesetzt, schlägt der Flow mit Validierungsfehler fehl.
+
+**REST-Muster (Schritt 2 — Advanced):**
+```bash
+POST /api/config/config_entries/options/flow/<flow_id>
+{
+  "calibration": "local_calibration_based",
+  "calibration_mode": "default",
+  "protect_overheating": true,
+  "no_off_system_mode": true,
+  "heat_auto_swapped": false,
+  "child_lock": false,
+  "homematicip": false
+}
+```
+
+### 13.3 heating_power_calibration — Risiko bei saisonal abgeschalteter Anlage (verifiziert 15.03.2026)
+
+**⚠️ WARNUNG:** `calibration_mode: heating_power_calibration` (= „AI Time Based") ist für **kontinuierlichen Betrieb** ausgelegt.
+
+**Problem:** Läuft BT weiter, während die Zentralheizung physisch abgeschaltet ist (kein Wärmeträger), lernt der Algorithmus falsche Offsets:
+- BT sendet Call-for-Heat → TRV öffnet → keine Wärme → Sensor steigt nicht
+- Algorithmus wertet: „Heizleistung zu gering" → Offset erhöhen → nächster Zyklus noch aggressiver
+- **Positiver Rückkopplungskreis:** Offset driftet über Wochen ins Extreme
+
+**Typische Symptome:**
+- Offset WZ: auf +5 bis +10 gedriftet → TRV heizt physisch stundenlang weiter, auch wenn BT `action=idle` meldet
+- Offset SZ: auf −10 gedriftet (inverse Richtung, z.B. durch Sonneneinstrahlung) → TRV kaum offen, Solltemperatur nicht erreichbar
+- `call_for_heat = True` dauerhaft, obwohl Raumtemperatur weit über Soll
+
+**Diagnose:** `number.<RAUM>_temperaturoffset` State prüfen. Historik ist meist leer (Recorder schließt `number.*` typischerweise aus).
+
+**Fix:**
+1. `calibration_mode` → `default` (via Options Flow, → §13.2)
+2. `protect_overheating` → `true`
+3. Offset manuell auf 0 zurücksetzen: `number.set_value` auf betroffene Entity
+
+**Empfehlung für saisonal genutzte Objekte:** `calibration_mode: default` statt `heating_power_calibration` verwenden.
+
 
 ---
 
