@@ -38,7 +38,9 @@ Alles andere (Stockwerk, Kategorie, Gerätemarke, Saisonalität) gehört in **Ar
 
 ---
 
-## Räume-Glossar
+## Räume-Glossar (gemeinsamer Standard)
+
+Das folgende Glossar definiert die kanonischen Schreibweisen für Räume, die in beiden Instanzen vorkommen können. Jede Instanz verwendet nur die Räume, die physisch vorhanden sind.
 
 | entity_id-Schreibweise | Anzeigename (Bereich) |
 |---|---|
@@ -60,9 +62,22 @@ Alles andere (Stockwerk, Kategorie, Gerätemarke, Saisonalität) gehört in **Ar
 | `carport` | Carport |
 | `garage` | Garage |
 | `haustechnik` | Haustechnik (Heizung, USV, Netzwerk, etc.) |
-| `global` | Kein Raumbezug (Helfer, Zustände, Automationen) |
+| `global` | Kein Raumbezug (instanzweite Helfer, Zustände, Automationen) |
 
-> Erweiterungen je Instanz (LB/RBO) möglich — in der lokalen claude.md dokumentieren.
+**Instanzspezifische Räume:** LB und RBO können Räume haben, die in der anderen Instanz nicht existieren. Diese werden mit demselben Namensschema in der jeweiligen `claude.md` dokumentiert — das Glossar hier bleibt der gemeinsame Stamm.
+
+---
+
+## Instanz-Koordination LB ↔ RBO
+
+Beide Instanzen verwenden dieselbe Konvention. Das ermöglicht:
+- Automationen und Konfigurationen ohne Umbenennung zwischen Instanzen zu übertragen
+- Kanal-Kommunikation (`lb_to_rbo.md`, `rbo_to_lb.md`) ohne Übersetzung von entity_ids
+- Gemeinsame Debugging-Erfahrung: Wer eine Instanz kennt, findet sich in der anderen sofort zurecht
+
+**Divergenz-Regel:** Wenn eine Instanz einen Raum oder eine Funktion hat, die die andere nicht kennt, wird das Schema trotzdem eingehalten. Es wird **nicht** ein Instanz-Prefix ergänzt — der Kontext ergibt sich aus der HA-Instanz selbst.
+
+**Synchronisation:** Änderungen am gemeinsamen Glossar (neue Raumbezeichnungen, neue Konventionen) werden über den Kanal kommuniziert und in beiden Instanzen umgesetzt.
 
 ---
 
@@ -78,7 +93,7 @@ timer.global_sicherheit_cooldown
 binary_sensor.global_ha_startphase
 ```
 
-**Begründung:** `global` signalisiert instanzweiten Zustand, kein physischer Raum.
+**Begründung:** `global` signalisiert instanzweiten Zustand, kein physischer Raum. Gilt identisch für LB und RBO — beide Instanzen nutzen dasselbe `global`-Prefix.
 
 ### Personen & Geräte-Tracker
 
@@ -96,10 +111,6 @@ Beispiele:
 ```
 <domain>.netzwerk_<funktion>[_<bezeichner>]
 ```
-
-Beispiele:
-- `binary_sensor.netzwerk_internet`
-- `switch.netzwerk_fritzbox_mirko_handy`
 
 ### Virtuelle / berechnete Entities (Template, Helfer)
 
@@ -131,7 +142,7 @@ scene.<ort>_<stimmung_oder_funktion>
 
 ### Energie-Sensoren (Siblings von Switches)
 
-Bei Shelly/Zigbee-Geräten mit Energie-Messung: Siblings folgen der Konvention des zugehörigen Switch, erhalten aber die Messgröße als Funktionssuffix:
+Bei Shelly/Zigbee-Geräten mit Energie-Messung folgen Siblings der Konvention des zugehörigen Switch, mit der Messgröße als Funktionspräfix:
 
 ```
 switch.kueche_spuelmaschine
@@ -146,7 +157,7 @@ Nicht: `sensor.spuelmaschine_power` (Hersteller-Default) oder `sensor.kueche_spu
 
 ## Labels (Querschnittskategorien)
 
-Labels ersetzen was früher im Namen stand. Empfohlenes Basis-Set:
+Labels ersetzen was früher im Namen stand. Empfohlenes Basis-Set — gilt für beide Instanzen:
 
 | Label | Verwendung |
 |---|---|
@@ -171,7 +182,7 @@ Labels ersetzen was früher im Namen stand. Empfohlenes Basis-Set:
 | Außen | Garten, Vorgarten, Einfahrt, Terrasse, Schuppen, Carport |
 | Haustechnik | Haustechnik |
 
-> Floor-Struktur ist instanzspezifisch — LB und RBO können abweichen.
+> Floor-Struktur ist instanzspezifisch — LB und RBO können abweichen. Die Raumbezeichnungen bleiben jedoch nach obigem Glossar einheitlich.
 
 ---
 
@@ -181,8 +192,8 @@ Labels ersetzen was früher im Namen stand. Empfohlenes Basis-Set:
 |---|---|---|
 | `light.led_kuche` | `light.kueche_decke` | Redundanz `licht` entfernt |
 | `switch.licht_kuche` | `switch.kueche_decke_schalter` | Ort zuerst |
-| `switch.wz_fernseher` | `switch.wohnzimmer_steckdose_fernseher` | lb_ entfällt, Ort ausgeschrieben |
-| `switch.lb_bewegungsmelder` | `switch.garten_aussenlicht_relay` | Funktion statt Gerät |
+| `switch.wz_fernseher` | `switch.wohnzimmer_steckdose_fernseher` | Ort ausgeschrieben |
+| `switch.lb_bewegungsmelder` | `switch.garten_aussenlicht_relay` | lb_ entfällt, Funktion statt Gerät |
 | `switch.lb_pm_hzks` | `switch.haustechnik_pm_heizkreis` | lb_ entfällt |
 | `binary_sensor.belegung_wohnzimmer_kombiniert` | `binary_sensor.wohnzimmer_belegung` | kombiniert entfällt |
 | `binary_sensor.echte_bewegung_badezimmer` | `binary_sensor.badezimmer_bewegung` | echte_ entfällt |
@@ -219,9 +230,9 @@ Kurzfassung für tägliche Arbeit:
 1. **In Etappen** — pro Raum oder pro Domain, nie alles auf einmal
 2. **Reihenfolge:** YAML-Bulk-Replace → `core.config_entries` patchen → Registry-Rename → Gruppen reparieren → Dashboards patchen → HA-Neustart
 3. **YAML zuerst, Registry danach** — `ha_rename_entity` aktualisiert YAML-Referenzen NICHT automatisch
-4. **`core.config_entries` vor dem Neustart** — Integrationen mit Setup-Flow (BT, Generic Thermostat) speichern entity_ids in `data`, nicht in YAML; mit veralteten IDs starten sie fehlerhaft und verlangsamen den Neustart
-5. **Storage-Dashboards** (`lovelace.*`) werden durch `ha_rename_entity` NICHT aktualisiert — manueller String-Replace auf `.storage`-Dateien nötig, danach HA-Neustart
-6. **Externe IDs** (von Integrationen vergeben) — nur `friendly_name` ändern, `entity_id` unangetastet lassen
+4. **`core.config_entries` vor dem Neustart** — Integrationen mit Setup-Flow (BT, Generic Thermostat) speichern entity_ids in `data`, nicht in YAML; mit veralteten IDs starten sie fehlerhaft
+5. **Storage-Dashboards** werden durch `ha_rename_entity` NICHT aktualisiert — manueller Patch nötig, danach HA-Neustart
+6. **Externe IDs** — nur `friendly_name` ändern, `entity_id` unangetastet lassen
 7. **Nach jeder Etappe** — `sensor.active_issues` prüfen, Spook-Issues auflösen
 
 ---
