@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.38.0"
+  version: "2.39.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.39.0 (15.03.2026): §16 neu — Shelly Button-Modus mit Kippschalter: btn_down+btn_up statt single_push; Detached+Button-Modus Voraussetzung für Event-Entity; Anti-Pattern-Tabelle. Verifiziert LB 15.03.2026.
     2.38.0 (14.03.2026): §20 Anti-Pattern — `enabled: false` in automations.yaml für UI-Automationen → Repair-Issue. Korrekt: `ha_set_entity(enabled=False)`.
     2.37.0 (14.03.2026): §13.1 Preset-Abbruch — Restore-Schritt MUSS vor Helper-Leeren erfolgen (Bug-Pattern + Anti-Pattern dokumentiert). §16.2 next_alarm als unzuverlässig eingestuft.
     2.36.0 (12.03.2026): §13 Preset `activity` ergänzt (live verifiziert). §16.2 Hinweis auf `disabled_by: integration` für next_alarm + last_update_trigger — Aktivierung via REST PUT entry_id.
@@ -1326,6 +1327,69 @@ Gilt nur wenn Z2M als Add-on läuft — bei externer Docker-Installation abweich
 Entity-Name **und** Gerätename in HA global.
 
 Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
+
+
+## 16. Shelly — Button-Modus mit Kippschalter (verifiziert 15.03.2026, LB)
+
+### 16.1 Event-Typen im Button-Modus (Gen2/Gen3)
+
+Im Button-Modus (Input Mode = Button/Taster) sendet Shelly Gen2/Gen3 folgende `click_type`-Werte
+als `shelly.click`-Events in HA:
+
+| click_type | Auslöser | Kippschalter? | Taster? |
+|---|---|---|---|
+| `btn_down` | Kontakt schließt | ✅ eine Richtung | ✅ Drücken |
+| `btn_up` | Kontakt öffnet | ✅ andere Richtung | ✅ Loslassen |
+| `single_push` | Kurzer vollständiger Drück-Loslassen-Zyklus | ❌ **nie** | ✅ |
+| `double_push` | Zwei schnelle Klicks | ❌ **nie** | ✅ |
+| `long_push` | Längeres Halten | ⚠️ nur bei sehr langem Halten | ✅ |
+
+**KRITISCH — Kippschalter im Button-Modus:**
+- Kippschalter senden **kein** `single_push` — nur `btn_down` (eine Richtung) und `btn_up` (andere Richtung)
+- Jede Flip-Richtung = **genau ein** Event
+- Für Toggle-Funktion: **beide** Events als Trigger verwenden (`btn_down` + `btn_up`)
+- `single_push` als alleiniger Trigger funktioniert mit Kippschalter **nicht**
+
+### 16.2 Korrekte Automation für Kippschalter + Toggle (verifiziert LB 15.03.2026)
+
+```yaml
+trigger:
+  - trigger: event
+    event_type: shelly.click
+    event_data:
+      device_id: <shelly_device_id>   # device_id aus HA-Device-Registry
+      click_type: btn_down
+  - trigger: event
+    event_type: shelly.click
+    event_data:
+      device_id: <shelly_device_id>
+      click_type: btn_up
+action:
+  - action: light.toggle
+    target:
+      entity_id: light.ziel_entity
+mode: single
+```
+
+### 16.3 Detached Switch + Button-Modus (Gen3)
+
+Kombination für smart bulbs:
+- **Output/Relais:** Dauerhaft EIN → Strom immer an der Lampe
+- **Input:** Button-Modus + Getrennter Schalter (Detached) → Relais reagiert nicht physisch
+- **HA:** Event-Entity `event.<device_name>` wird automatisch erstellt (Input Mode = Button)
+- **Binary Sensor** (`binary_sensor.<device>_input_0_input`) wird deaktiviert (`disabled_by: integration`) — korrekt so
+
+**Wichtig:** Input Mode = Switch + Detached → weder Event-Entity noch Binary Sensor nutzbar.
+Input Mode muss auf **Button/Taster** stehen damit Event-Entity entsteht.
+
+### 16.4 Anti-Pattern (verifiziert LB 15.03.2026)
+
+| Falsch | Richtig | Grund |
+|---|---|---|
+| `click_type: single_push` bei Kippschalter | `btn_down` + `btn_up` | Kippschalter sendet kein single_push |
+| Nur `btn_up` als Trigger | Beide `btn_down` + `btn_up` | Nur eine Richtung wird getriggert |
+| State-Trigger auf `event.*.event_type` mit `to:` Filter | shelly.click Event-Trigger | Bei identischem Folgeevent keine Auslösung (state ändert sich nicht) |
+| Input Mode = Switch + Detached für HA-Automation | Input Mode = Button + Detached | Switch+Detached erstellt kein auswertbares HA-Entity |
 
 ## 16. Android Companion App — next_alarm Sensor
 
