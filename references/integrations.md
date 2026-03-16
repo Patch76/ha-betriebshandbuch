@@ -140,6 +140,30 @@ actions:
 - Nicht alle Hersteller implementieren das Speicherverhalten identisch — bei abweichendem
   Verhalten Delay erhöhen oder Zielzustand bei `brightness: 2` testen.
 
+
+### 14.4 Geräteprofil: EGLO Saliteras-Z (AwoX EGLO_ZM_RGB_TW)
+
+**Modell:** EGLO 900024 / 12253 | Firmware: 2.3.12_250 | LB-Entity: `light.kueche_decke`
+
+**Protokolltrennung (KRITISCH):**
+- Hauptlicht: gesteuert via Zigbee (Z2M)
+- Backlight (RGB-Ring): gesteuert via **Bluetooth** (AwoX Mesh, App-Only)
+- Z2M-State ändert sich **nicht** wenn die App das Backlight schaltet — beide Protokolle sind vollständig unabhängig
+- `color_temp_startup` greift nur wenn der letzte Z2M-State ebenfalls `color_temp` war
+
+**Verifizierte Verhaltensregeln (16.03.2026, LB):**
+- Backlight via Zigbee steuern: **nicht möglich** (kein Expose in Z2M, Cluster 65360 proprietär)
+- `brightness: 0` oder `brightness: 1` schaltet Hauptlicht **nicht aus** (Firmware-Mindesthelligkeit)
+- Nur via `state: OFF` kann alles (inkl. Backlight) ausgeschaltet werden
+- `fsaris/home-assistant-awox` unterstützt `.ble.zigbee.light.*` explizit nicht
+
+**Workaround Backlight deaktivieren:**
+1. App öffnen → Warmweiß antippen → Backlight aus, Zigbee-State unverändert
+2. Danach nur noch `color_temp` via Zigbee → Backlight bleibt dauerhaft aus (BT-Flash-Speicher)
+
+**Kalibrierte Tageswerte (LB Küche):**
+- `color_temp: 290` | `brightness: 220` → mittleres Tageslicht, kein Backlight
+
 ---
 
 
@@ -168,6 +192,18 @@ Entity-Name **und** Gerätename in HA global.
 
 Gilt nur für Zigbee-Geräte — nicht für andere Integrationen.
 
+### 15.3 Debug-Logging — SOFORT zurücksetzen nach Tests
+
+`log_level: debug` erzeugt erhebliches Log-Volumen und **muss direkt nach Abschluss von Tests
+zurückgesetzt werden** — nicht auf Session-Ende warten.
+
+**Zurücksetzen via MQTT:**
+```
+Topic:   zigbee2mqtt/bridge/request/options
+Payload: {"options":{"advanced":{"log_level":"info"}}}
+```
+
+Normalzustand: `log_level: info`
 
 
 ## 16. Shelly — Button-Modus mit Kippschalter (verifiziert 15.03.2026, LB)
