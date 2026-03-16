@@ -206,6 +206,19 @@ Payload: {"options":{"advanced":{"log_level":"info"}}}
 Normalzustand: `log_level: info`
 
 
+### 15.4 MQTT Explorer — Debugging-Tool
+
+MQTT Explorer läuft **nicht dauerhaft** — er muss vor jeder Debug-Session manuell gestartet werden.
+Gilt für beide Instanzen (LB und RBO).
+
+| Instanz | URL |
+|---------|-----|
+| LB | https://fobaqcy4uh4vovo8dtyvkqxq5uyh7fmj.ui.nabu.casa/app/9cf1ea8f_mqtt_explorer |
+| RBO | Im RBO Add-on-Panel |
+
+**Zugangsdaten:** User: `mqtt` · Passwort: `local`
+
+
 ## 16. Shelly — Button-Modus mit Kippschalter (verifiziert 15.03.2026, LB)
 
 ### 16.1 Event-Typen im Button-Modus (Gen2/Gen3)
