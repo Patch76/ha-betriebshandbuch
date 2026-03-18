@@ -65,7 +65,7 @@ template:
     - name: "Außentemperatur Fahrenheit"
       unique_id: aussentemperatur_fahrenheit   # PFLICHT für UI-Anpassung
       device_class: temperature                # PFLICHT wenn Quellsensor device_class hat
-      state_class: measurement                 # PFLICHT wenn unit_of_measurement gesetzt
+      state_class: measurement                 # EMPFOHLEN wenn Long-Term-Statistiken gewünscht
       unit_of_measurement: "°F"
       availability: "{{ has_value('sensor.aussentemperatur') }}"  # EMPFOHLEN
       state: >
@@ -78,9 +78,10 @@ template:
   Bevorzugt: `has_value('sensor.quelle')`, alternativ:
   `"{{ states('sensor.quelle') not in ['unavailable','unknown','none'] }}"`
 
-**state_class — PFLICHT wenn `unit_of_measurement` gesetzt (verifiziert 08.03.2026):**
-Ohne `state_class` schreibt HA **keine** Langzeit-Statistiken — kein Eintrag in
-`statistics_meta`, kein History-Graph, kein Energy-Dashboard-Zugriff.
+**state_class — optional, aber empfohlen für numerische Sensoren (verifiziert sergeykad 2026.3):**
+`state_class` ist **kein** Pflichtfeld — es ist opt-in für Long-Term-Statistiken.
+Ohne `state_class` schreibt HA keine Langzeit-Statistiken (kein Eintrag in `statistics_meta`).
+Nicht setzen bei Diagnostic- oder One-Shot-Sensoren (z.B. `unit_of_measurement: "ms"` ohne Statistik-Bedarf).
 Werte: `measurement` (aktueller Messwert), `total` (Lifetime-Zähler),
 `total_increasing` (Zähler mit periodischem Reset).
 
