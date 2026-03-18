@@ -52,6 +52,23 @@ BT Options Flow ist **zweistufig** und vollständig via REST-API durchführbar (
 
 Wird nur `calibration` gesetzt, schlägt der Flow mit Validierungsfehler fehl.
 
+**Hängenden Options-Flow abbrechen:**
+Ein gestarteter, nicht abgeschlossener Flow blockiert jeden neuen Options-Flow für dieselbe Config-Entry.
+Abbruch via REST:
+```bash
+DELETE /api/config/config_entries/options/flow/<flow_id>
+→ 200 OK (Flow entfernt, Entry wieder verfügbar)
+```
+`flow_id` aus dem initialen `POST`-Response entnehmen oder via:
+```bash
+GET /api/config/config_entries/options/flow  → Liste aller aktiven Flows
+```
+
+**`data` vs `options` — je nach Integration:**
+Nicht alle Integrationen speichern Konfiguration in `data`. `SchemaConfigFlowHandler`-Integrationen
+(Threshold, Generic Thermostat, Generic Hygrostat, Min/Max) speichern alles in `options`, nicht `data`.
+Prüfung: `entry.get('data', {})` liefert bei diesen Integrationen `{}` — stattdessen `entry.get('options', {})` nutzen.
+
 **REST-Muster (Schritt 2 — Advanced):**
 ```bash
 POST /api/config/config_entries/options/flow/<flow_id>
