@@ -8,8 +8,9 @@
 | Datei committen (Patch76/skills Fork) | ✅ | — |
 | PR-Review-Comment posten (homeassistant-ai/skills) | ❌ 403 | ✅ |
 | PR-Review-Comment löschen | ❌ 403 | ✅ |
+| Issue-Kommentar posten (homeassistant-ai/skills) | ❌ 403 | ✅ |
+| Issue-Kommentar löschen (homeassistant-ai/skills) | ❌ 403 | ✅ |
 | GraphQL markPullRequestReadyForReview | ❌ 403 | ✅ |
-| Issue-Kommentar (homeassistant-ai/skills) | ❌ 403 | ✅ |
 | Squash-Merge (Patch76/ha-betriebshandbuch) | ✅ | — |
 | CI check-runs lesen | ✅ | — |
 
@@ -85,7 +86,8 @@ async function replyToThread(commentId, text) {
 
 Duplikat-Prüfung nach DOM-Posts immer via API — nicht DOM zählen:
 ```bash
-curl -s -H "Authorization: token $PAT"   "https://api.github.com/repos/homeassistant-ai/skills/pulls/NR/comments?per_page=100" | python3 -c "
+curl -s -H "Authorization: token $PAT" \
+  "https://api.github.com/repos/homeassistant-ai/skills/pulls/NR/comments?per_page=100" | python3 -c "
 import json,sys
 cs=json.load(sys.stdin)
 replied=set(c['in_reply_to_id'] for c in cs if c['user']['login']=='Patch76' and c.get('in_reply_to_id'))
@@ -121,3 +123,5 @@ for r in roots:
 | `.` tippen auf GitHub öffnet github.dev | Web-Editor öffnet sich | `javascript_tool` + nativeInputValueSetter statt type-Action |
 | Gemini re-review nicht automatisch | Kein neuer Review-Durchlauf | `/gemini review` als PR-Kommentar posten |
 | Fork-PR CI wartet | `1 workflow awaiting approval` | Maintainer-Approval abwarten — kein Handlungsbedarf |
+| Ghost-Comment: API 404, DOM rendert "Sorry, something went wrong" | Comment nicht im DOM auffindbar, kein Delete-Menü | Immer zuerst via API prüfen ob Comment noch existiert; 404 = bereits gelöscht |
+| Issue-Kommentar löschen scheitert mit 403 | Eigener Kommentar im Fremd-Repo nicht via PAT löschbar | Browser-DOM: 3-Punkt-Menü im Comment nutzen |
