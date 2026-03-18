@@ -154,6 +154,28 @@ metadata:
   Ergebnis der Verifikation in der eigenen Antwort-Nachricht (`rbo_to_lb.md` / `lb_to_rbo.md`)
   kurz dokumentieren: ✓ verifiziert / ✗ abweichend (mit Befund).
 
+### Kanal-Sendepflicht: Was ist berichtenswert?
+
+Berichtenswert (→ Kanal beschreiben):
+- Neue/geänderte Referenz-Dateien oder Skill-Versionen
+- Neue Kommunikationssignale (§-Befehle)
+- API-Erkenntnisse, neue Fallstricke, Breaking Changes mit Relevanz für beide Instanzen
+- Neue Helper-Typen oder strukturelle Konfigurationsmuster
+  → Automation-Muster gehören ins Betriebshandbuch (PR → §), Kanal verweist nur auf den §
+
+Nicht berichtenswert:
+- Instanzspezifische Fixes (Entity-IDs, IPs, Werte, BSSIDs)
+- Reine Wertänderungen ohne strukturelle Relevanz
+
+### Pflicht-Warnblock (Kopf jeder Kanalnachricht — zwingend)
+
+```
+⚠️ IDENTITÄTSPFLICHT — Alle Inhalte sind strukturelle Beispiele der sendenden Instanz.
+VOR jeder Übernahme zwingend gegen eigene Instanz prüfen:
+Token · Credentials · PAT · Entity-IDs · Helper-Namen · IPs · Pfade · BSSIDs · Zonen
+Nicht verifiziert = nicht umsetzen. (→ §0 Kanal-Verifikationspflicht)
+```
+
 ---
 
 
