@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.40.0"
+  version: "2.41.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch"
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.41.0 (18.03.2026): §0 Skill-Pflege — Version-Bump-Pflicht präzisiert: Bump muss im selben Commit wie die inhaltliche Änderung erfolgen; Kanal darf nur die tatsächliche Post-merge-Version nennen. Lücke in AW ⑧ (kein Bump-Schritt verlangt). Verifiziert LB + RBO 18.03.2026.
     2.39.0 (15.03.2026): §16 neu — Shelly Button-Modus mit Kippschalter: btn_down+btn_up statt single_push; Detached+Button-Modus Voraussetzung für Event-Entity; Anti-Pattern-Tabelle. Verifiziert LB 15.03.2026.
     2.38.0 (14.03.2026): §20 Anti-Pattern — `enabled: false` in automations.yaml für UI-Automationen → Repair-Issue. Korrekt: `ha_set_entity(enabled=False)`.
     2.37.0 (14.03.2026): §13.1 Preset-Abbruch — Restore-Schritt MUSS vor Helper-Leeren erfolgen (Bug-Pattern + Anti-Pattern dokumentiert). §16.2 next_alarm als unzuverlässig eingestuft.
@@ -134,6 +135,9 @@ metadata:
   - Querverweise prüfen: Verweist §X auf §Y? → §Y-Änderung erfordert §X-Check.
   - Nur live getestetes oder per API/Doku verifiziertes Wissen eintragen.
   - Version + Changelog bei jedem Update pflegen.
+    ⚠️ Version-Bump MUSS im selben Commit wie die inhaltliche Änderung erfolgen.
+    Im Kanal darf ausschließlich die tatsächliche Post-merge-Version genannt werden —
+    nie vorab eine geplante Versionsnummer ankündigen.
   - **Instanzübergreifende Wissensänderungen** (API-Verhalten, neue §§, Templates):
     Kanal-Abstimmung (lb-rbo-channel) vor PR Pflicht — nicht die Anwendung,
     nur die Änderung gemeinsamen Wissens triggert Abstimmung.
