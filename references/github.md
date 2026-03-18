@@ -101,6 +101,11 @@ for r in roots:
 
 ### Review-Regeln
 
+- **PR-Vollcheck-Reihenfolge:** Bei jeder PR-Review-Session vollständig prüfen:
+  1. Inline-Threads: alle Root-Threads (Gemini + Maintainer) beantwortet?
+  2. Issue-Level-Comments: Duplikate? Fehlende Antworten?
+  3. Verlinkte Issues: `Fixes #N` / `Closes #N` aus PR-Body extrahieren → Issue öffnen → letzten Comment auf Aktualität prüfen
+  - Issues bleiben offen bis Merge (GitHub schließt sie automatisch) → kein Handlungsbedarf, aber Inhalt muss aktuell sein
 - **Thread-Reply-Pflicht**: Jeder Root-Thread (Gemini + Maintainer) muss direkt beantwortet werden — auch wenn Resolved
 - **Reply-Formel**: Was war das Problem? Welcher Commit behebt es?
 - **Emoji-Regel**: Nur bei anerkennender Kommentierung (empfangend und gebend), sparsam. Korrektive Replies: kein Emoji
