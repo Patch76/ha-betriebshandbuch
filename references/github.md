@@ -111,6 +111,7 @@ for r in roots:
 - **Emoji-Regel**: Nur bei anerkennender Kommentierung (empfangend und gebend), sparsam. Korrektive Replies: kein Emoji
 - **Duplikate**: DOM-Posts können bei Timeouts doppelt landen — immer API-Verifikation
 - **Resolved ohne Reply**: Aus 3rd-Person-Sicht unklar ob verstanden → immer Reply, dann Resolve
+- **Zurückhaltung bei fremden PRs**: Nur kommentieren wenn echter, nicht bereits gedeckter Mehrwert vorhanden. Redundante Bestätigungen (z.B. „action: ist korrekt" wenn bereits im Thread beantwortet) sind Noise — schaden dem professionellen Eindruck.
 
 ---
 
@@ -130,6 +131,11 @@ for r in roots:
 | Fork-PR CI wartet | `1 workflow awaiting approval` | Maintainer-Approval abwarten — kein Handlungsbedarf |
 | Ghost-Comment: API 404, DOM rendert "Sorry, something went wrong" | Comment nicht im DOM auffindbar, kein Delete-Menü | Immer zuerst via API prüfen ob Comment noch existiert; 404 = bereits gelöscht |
 | Issue-Kommentar löschen scheitert mit 403 | Eigener Kommentar im Fremd-Repo nicht via PAT löschbar | Browser-DOM: 3-Punkt-Menü im Comment nutzen |
+| resolveReviewThread FORBIDDEN via PAT | Upstream-Repo erlaubt keine Thread-Resolves via PAT | Browser-DOM: „Resolve conversation"-Button im Thread-Container klicken |
+| Outdated Threads nicht im Files-Tab | discussion_r<id> nicht gefunden | Conversation-Tab öffnen; details-Elemente mit summary=Dateiname per JS öffnen (details.open=true) |
+| Textarea auf Issue-Seite hat andere ID | id="new_comment_field" funktioniert nicht | Textarea über placeholder suchen: [...document.querySelectorAll('textarea')].find(t => t.placeholder?.includes('Markdown')) |
+| nativeInputValueSetter Illegal invocation | HTMLTextAreaElement.prototype direkt liefert Fehler | window.HTMLTextAreaElement.prototype verwenden: Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set |
+| Rebase: alter version-bump Commit konfliktet | Veralteter Commit setzt version:"1.1.1" — kollidiert mit upstream version:2 | git rebase --skip für diesen Commit; der neuere Fix-Commit (version:2) ist bereits enthalten |
 
 ---
 
