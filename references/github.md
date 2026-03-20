@@ -133,6 +133,29 @@ for r in roots:
 
 ---
 
+### Analyse-Prinzipien (verifiziert 18.03.2026)
+
+**Vor jeder Analyse: live verifizieren, nicht annehmen.**
+Konkret für upstream-Repos:
+- CI-Workflow-Dateien immer lesen (`/.github/workflows/*.yml`) — Verhalten nie aus Beschreibungen ableiten
+- `metadata.version` auf upstream main live abfragen — nie schätzen
+- Fork-Divergenz messen: `GET /repos/{fork}/compare/{fork_sha}...{upstream}:main`
+- CONTRIBUTING.md live laden bevor ein PR erstellt oder bewertet wird
+
+**CI-Versionsmechanismus homeassistant-ai/skills (verifiziert 18.03.2026):**
+- `validate-skills.yml`: blockiert PR wenn `version` im Branch ≠ `version` auf upstream main (Basis des PRs)
+- `auto-bump-version.yml`: erhöht nach Merge automatisch `version + 1` auf main
+- Korrekte Vorgabe im PR-Branch: `version:` auf denselben Integer-Wert wie upstream main setzen, nie manuell erhöhen
+- Aktueller Wert upstream main: `version: 2` (Stand 18.03.2026)
+- Extraktionslogik: erste Ganzzahl aus `version:`-Zeile im Frontmatter (d.h. `"1.1.1"` → `1` → falsch!)
+
+**CONTRIBUTING.md-Prinzipien (homeassistant-ai/skills, Stand 18.03.2026):**
+- Keine MCP-Tool-Namen (`ha_rename_entity`, `ha_get_integration` etc.) — immer HA-Konzept + REST-Endpoint
+- Keine opinionated conventions (Namenskonventionen, Stil-Präferenzen) — gehören in persönliche Skills oder `CLAUDE.md`
+- Nur Guidance die offizielles HA-Verhalten oder breiten Community-Konsens abbildet
+
+---
+
 ## Pre-Submission Checklist
 
 Run before every PR — in this order. Stop and fix before pushing.
