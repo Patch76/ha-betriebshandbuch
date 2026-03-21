@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.42.0"
+  version: "2.43.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.43.0 (21.03.2026): references/integrations.md §13.4 — BT-Kontrollzyklus hardcoded 5 min dokumentiert (verifiziert aus climate.py Quellcode).
     2.42.0 (18.03.2026): metadata.workflow — Version-Bump-Pflicht explizit in Workflow-Beschreibung ergänzt (→ §0 Skill-Pflege). Verifiziert LB 18.03.2026.
     2.41.0 (18.03.2026): §0 Skill-Pflege — Version-Bump-Pflicht präzisiert: Bump muss im selben Commit wie die inhaltliche Änderung erfolgen; Kanal darf nur die tatsächliche Post-merge-Version nennen. Lücke in AW ⑧ (kein Bump-Schritt verlangt). Verifiziert LB + RBO 18.03.2026.
     2.39.0 (15.03.2026): §16 neu — Shelly Button-Modus mit Kippschalter: btn_down+btn_up statt single_push; Detached+Button-Modus Voraussetzung für Event-Entity; Anti-Pattern-Tabelle. Verifiziert LB 15.03.2026.
