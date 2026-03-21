@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.43.0"
+  version: "2.44.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.44.0 (21.03.2026): §2.10.1 neu — SSH-Terminal-Eingabe: triggerDataEvent als einzig
+      korrekte Methode (paste() versagt wegen Bracketed Paste Mode in zsh, verifiziert).
+      Muster: Einzeiler, Python-Heredoc, Ctrl-C, Sentinel-Pattern, Buffer-Scan.
     2.43.0 (21.03.2026): references/integrations.md §13.4 — BT-Kontrollzyklus hardcoded 5 min dokumentiert (verifiziert aus climate.py Quellcode).
     2.42.0 (18.03.2026): metadata.workflow — Version-Bump-Pflicht explizit in Workflow-Beschreibung ergänzt (→ §0 Skill-Pflege). Verifiziert LB 18.03.2026.
     2.41.0 (18.03.2026): §0 Skill-Pflege — Version-Bump-Pflicht präzisiert: Bump muss im selben Commit wie die inhaltliche Änderung erfolgen; Kanal darf nur die tatsächliche Post-merge-Version nennen. Lücke in AW ⑧ (kein Bump-Schritt verlangt). Verifiziert LB + RBO 18.03.2026.
@@ -537,6 +540,54 @@ Verfügung — nicht in Automationen, Scripts oder template.yaml.
 - **Browser-Aktionen immer in neuem Tab** öffnen (`tabs_create_mcp`),
   nie im SSH-Tab selbst navigieren.
 - **Fallback:** SSH-Tab-URL instanzspezifisch im SI/AW dokumentiert.
+
+#### 2.10.1 Befehle senden — triggerDataEvent (verifiziert 21.03.2026)
+
+**Einzige korrekte Methode:** `window.term._core.coreService.triggerDataEvent(s)`
+
+`paste()` **ist FALSCH** für ausführbare Befehle: zsh hat Bracketed Paste Mode aktiv,
+`paste()` wrappт den Inhalt mit `ESC[200~...ESC[201~` — `\r` wird als Literal,
+nicht als PTY-Signal behandelt. Befehl tippt, führt aber nie aus.
+
+```javascript
+// Helfer (einmalig)
+const tde = s => window.term._core.coreService.triggerDataEvent(s);
+
+// Zeile leeren
+tde('\x15');            // Ctrl-U
+
+// Einzeiler ausführen
+tde('echo hallo\r');
+
+// Prozess abbrechen
+tde('\x03');            // Ctrl-C
+
+// Mehrzeiliges Python via Heredoc — jede Zeile einzeln mit \r
+const lines = [
+  "python3 << 'PYEOF'",
+  "import json",
+  "print(json.dumps({'ok': True}))",
+  "PYEOF",
+];
+for (const l of lines) tde(l + '\r');
+```
+
+**Ausgabe lesen — Buffer-Scan:**
+```javascript
+const t = window.term, buf = t.buffer.active;
+const out = [];
+for (let i = buf.length-1; i >= 0 && out.length < 30; i--) {
+  const l = buf.getLine(i)?.translateToString(true);
+  if (l?.trim()) out.unshift(l.trimEnd());
+}
+out.join('\n');
+```
+
+**Sentinel-Pattern für sichere Completion-Erkennung:**
+```javascript
+tde("befehl; echo '__DONE__'\r");
+// Buffer scannen bis '__DONE__' sichtbar
+```
 
 ---
 
