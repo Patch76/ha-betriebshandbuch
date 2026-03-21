@@ -31,11 +31,8 @@ Qualitätsmaßstab:
 - Energie: Heizungseffizienz vs. Belegung?
 - Sicherheit: Unerwartete Bewegungs-/Türmuster?
 
----
-- **Version-Bump-Sync:** Bei jeder inhaltlichen Änderung an SKILL.md (Version + Changelog im Commit) zwingend auch die Versionsnummer in der CLAUDE.md-Referenztabelle aktualisieren. Tabellenüberschrift lautet: . Dieser Schritt ist Teil des Commit — kein separater Folge-Commit.
 
 ---
-
 
 ## 22. CLAUDE.md — Empfohlene Struktur (Template)
 
@@ -81,6 +78,15 @@ Nummerierte Liste. Nach Erledigung entfernen — nie als "erledigt" markiert ste
   Konsequenz bei Missachtung: lautloser Datenverlust oder inkompletter Schreibvorgang.
 - **Skill-Querverweise** statt Inhaltskopie: `→ Skill §4.1` statt den Regeltext zu wiederholen.
 - **Integrations-spezifische Abschnitte** (z.B. Better Thermostat, Android next_alarm) nur wenn die Integration auf dieser Instanz installiert ist.
+
+### 22.3 Version-Bump-Sync (Pflicht bei SKILL.md-Änderungen)
+
+Bei jeder inhaltlichen Änderung an `SKILL.md` (Version-Bump + Changelog im selben Commit)
+zwingend auch die Versionsnummer in der `claude.md`-Referenztabelle aktualisieren.
+
+- Tabellenüberschrift: `### Referenz-Dateien (ha-betriebshandbuch vX.Y.Z — gezieltes Nachladen)`
+- Dieser Schritt ist Teil des Commits — kein separater Folge-Commit.
+- AW-Inline-Hinweise sind Erinnerungshilfen; diese Stelle ist kanonisch.
 
 ---
 
