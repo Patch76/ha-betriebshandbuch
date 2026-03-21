@@ -32,6 +32,8 @@ Qualitätsmaßstab:
 - Sicherheit: Unerwartete Bewegungs-/Türmuster?
 
 ---
+- **Version-Bump-Sync:** Bei jeder inhaltlichen Änderung an SKILL.md (Version + Changelog im Commit) zwingend auch die Versionsnummer in der CLAUDE.md-Referenztabelle aktualisieren. Tabellenüberschrift lautet: . Dieser Schritt ist Teil des Commit — kein separater Folge-Commit.
+
 ---
 
 
