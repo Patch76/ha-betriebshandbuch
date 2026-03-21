@@ -153,5 +153,44 @@ result = asyncio.run(ws_call(TOKEN, "config/entity_registry/list_for_display"))
 entities = result["result"]   # Liste mit Einträgen {ei, pl, lb, di, ...}
 ```
 
+### 17.5 Dashboard-Migration nach Entity-Rename (verifiziert 21.03.2026)
+
+**WICHTIG: `ha_config_set_dashboard` nutzt `websocket_lovelace_save_config`** — kein HA-Restart nötig.
+Direkte `.storage`-Datei-Edits (via `write_file`) benötigen dagegen einen Restart.
+
+**Korrekter Workflow (kein Restart):**
+```python
+# 1. Dashboard-Config laden
+# ha_config_get_dashboard(url_path="mein-dashboard")
+# → gibt config + config_hash zurück
+
+# 2. Entity-IDs ersetzen (extern, ohne Sandbox-Einschränkungen)
+import json
+config = dashboard_config  # aus Schritt 1
+config_str = json.dumps(config)
+config_str = config_str.replace('"old.entity_id"', '"new.entity_id"')
+new_config = json.loads(config_str)
+
+# 3. Zurückschreiben — sofort wirksam, kein Restart
+# ha_config_set_dashboard(url_path="mein-dashboard", config=new_config)
+```
+
+**python_transform Sandbox — Einschränkungen (verifiziert):**
+- ❌ Blockiert: `import`, `def`, `isinstance`, `str.replace()`, `__class__`
+- ✅ Erlaubt: dict/list-Zugriff, Schleifen, `split()`+`join()`, String-Methoden
+- Für Bulk-Replace Entity-IDs: **nicht geeignet** → `config=`-Parameter verwenden
+
+**Warum nicht `write_file` + Restart:**
+- Direkte `.storage`-Edits werden erst beim nächsten HA-Start eingelesen
+- `ha_config_set_dashboard(config=...)` ist atomar + sofort wirksam
+- Bei write_file: Datei >~40 KB → HTTP 500 (Workaround: `json.dumps(data, separators=(',',':'))`)
+
+**Für alle storage-mode Dashboards:**
+```python
+# Alle Dashboards auflisten
+# ha_config_get_dashboard(list_only=True) → url_path Liste
+# Dann pro Dashboard: get → replace → set
+```
+
 ---
 
