@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.44.0"
+  version: "2.45.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.45.0 (21.03.2026): §2.7 Backup-Pflicht mit 2-Slot-Rotation ergänzt (DATEI.bak + DATEI.bak.prev).
+      Gilt für kritische Dateien. CLAUDE.md §⓪ + §! verschärft.
     2.44.0 (21.03.2026): §2.10.1 neu — SSH-Terminal-Eingabe: triggerDataEvent als einzig
       korrekte Methode (paste() versagt wegen Bracketed Paste Mode in zsh, verifiziert).
       Muster: Einzeiler, Python-Heredoc, Ctrl-C, Sentinel-Pattern, Buffer-Scan.
@@ -459,34 +461,53 @@ curl ... | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['service
 
 Standardmuster für alle Dateiänderungen via bash_tool. **Ausschließlich in einem
 zusammenhängenden Python-Block** — nie aufgeteilt auf mehrere Tool-Calls.
+
+#### Backup-Pflicht (2-Slot-Rotation)
+
+Vor jedem Schreiben auf **kritische Dateien** (claude.md, automations.yaml, template.yaml):
+
+```
+claude.md          ← aktuell
+claude.md.bak      ← Stand vor diesem Write    (Slot A)
+claude.md.bak.prev ← Stand vor dem letzten Write (Slot B)
+```
+
+```python
+# Slot-Rotation: .bak → .bak.prev (fehlt .bak → still überspringen)
+try:
+    bak = read_file("/config/DATEI.bak")          # Slot A lesen
+    write_file("DATEI.bak.prev", bak)             # → Slot B
+except Exception:
+    pass  # Erstlauf oder .bak fehlt → überspringen
+
+# Aktuellen Stand sichern → Slot A
+c_original = read_file("/config/DATEI")
+r_bak = write_file("DATEI.bak", c_original)
+assert r_bak["service_response"]["returncode"] == 0, "Backup fehlgeschlagen — Abbruch"
+```
+
+Nicht nötig für: session_handoff.md, rbo_to_lb.md (unkritisch/ersetzbar).
+Wiederherstellung: `write_file("DATEI", read_file("/config/DATEI.bak"))`
+
+#### Vollständiges Muster
+
 ```python
 import json, base64, urllib.request
 
 TOKEN = "..."
 BASE  = "https://HA_HOST"
 
-# 1. LESEN (vorher: curl -o /tmp/ha_response.json)
-curl_out = json.load(open('/tmp/ha_response.json'))
-c = curl_out['service_response']['stdout']
+def read_file(filename):
+    req = urllib.request.Request(
+        f"{BASE}/api/services/shell_command/read_file?return_response",
+        data=json.dumps({"filename": filename}).encode(),
+        headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"},
+        method="POST"
+    )
+    return json.loads(urllib.request.urlopen(req).read())["service_response"]["stdout"]
 
-# 2. repr()-CHECK (Pflicht vor str.replace)
-# python3 -c "c=open('/config/FILE').read(); [print(repr(l)) for l in c.splitlines() if 'Begriff' in l]"
-# Grund: Umlaute, Quotes, Whitespace können vom Screenshot abweichen → replace() schlägt lautlos fehl
-# ACHTUNG EOF: Letzte Zeile einer Datei hat oft KEIN trailing 
-.
-#   Anker niemals mit 
- abschließen wenn er auf der letzten Zeile liegt.
-#   Immer den Anker 1:1 aus repr()-Output kopieren — nie aus Screenshot oder Gedächtnis.
-
-# 3. ÄNDERN
-OLD = 'exakt kopierter String aus repr()-Output'
-NEW = 'neuer Inhalt'
-assert OLD in c, f"Anker nicht gefunden: {repr(OLD[:60])}"
-c = c.replace(OLD, NEW, 1)
-
-# 4. SCHREIBEN
 def write_file(path, content):
-    b64 = base64.b64encode(content.encode('utf-8')).decode('ascii')
+    b64 = base64.b64encode(content.encode("utf-8")).decode("ascii")
     body = json.dumps({"path": path, "content_b64": b64}).encode()
     req = urllib.request.Request(
         f"{BASE}/api/services/shell_command/write_file?return_response",
@@ -495,10 +516,27 @@ def write_file(path, content):
         method="POST"
     )
     # urllib.request liefert HA-JSON direkt — kein bash_tool-Wrapping!
-    # r['service_response'] direkt abrufen (NICHT r['stdout']['service_response'])
     return json.loads(urllib.request.urlopen(req).read())
 
-r = write_file("PFAD_RELATIV_ZU_CONFIG", c)   # z.B. "automations.yaml", "CLAUDE.md"
+# 0. BACKUP (siehe oben — bei kritischen Dateien)
+
+# 1. LESEN
+c = read_file("/config/DATEI")
+
+# 2. repr()-CHECK (Pflicht vor str.replace)
+# python3 -c "c=open('/config/FILE').read(); [print(repr(l)) for l in c.splitlines() if 'Begriff' in l]"
+# Grund: Umlaute, Quotes, Whitespace können vom Screenshot abweichen → replace() schlägt lautlos fehl
+# ACHTUNG EOF: Letzte Zeile hat oft KEIN trailing \n.
+#   Anker 1:1 aus repr()-Output kopieren — nie aus Screenshot oder Gedächtnis.
+
+# 3. ÄNDERN
+OLD = "exakt kopierter String aus repr()-Output"
+NEW = "neuer Inhalt"
+assert OLD in c, f"Anker nicht gefunden: {repr(OLD[:60])}"
+c = c.replace(OLD, NEW, 1)
+
+# 4. SCHREIBEN
+r = write_file("PFAD_RELATIV_ZU_CONFIG", c)   # z.B. "automations.yaml", "claude.md"
 print(f"rc={r['service_response']['returncode']} err={r['service_response']['stderr'] or 'OK'}")
 
 # 5. VERIFIZIEREN (separater curl-Call)
@@ -509,6 +547,7 @@ print(f"rc={r['service_response']['returncode']} err={r['service_response']['std
 - `computer.type` für Inhalte >200 Zeichen (Disconnect-Risiko)
 - `cat`-Heredoc für Dateiinhalt (lautloser Datenverlust bei Verbindungsabbruch)
 - Mehrere `str.replace()` ohne vorherigen `assert`-Check je Anker
+- Schreiben auf kritische Dateien ohne vorherige Backup-Rotation
 
 ### 2.8 shell_command — kein reload-Service (KRITISCH, verifiziert 07.03.2026)
 
