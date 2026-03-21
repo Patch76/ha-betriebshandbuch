@@ -46,9 +46,20 @@ Squash-Merge macht `compare/main...{branch}` `ahead_by` unzuverlässig → PR `m
 ### DOM-Reply-Muster (Thread-Replies ohne PAT-Write-Access)
 
 ```javascript
-// Vor jedem Scroll/Button-Suche: Convert-to-draft-Link deaktivieren
+// Vor jedem DOM-Submit auf PR-Seite: Alle destruktiven Buttons deaktivieren
+// PFLICHT vor jedem javascript_tool-Aufruf der einen Submit/Comment auslöst
 document.querySelectorAll('a,button').forEach(el => {
-  if (el.textContent?.includes('Convert to draft')) el.style.pointerEvents = 'none';
+  const t = el.textContent?.trim() || '';
+  if (
+    t.includes('Convert to draft') ||
+    t.includes('Close pull request') ||
+    t.includes('Close and comment') ||
+    el.name === 'comment_and_close' ||
+    el.getAttribute('data-action')?.includes('close')
+  ) {
+    el.style.pointerEvents = 'none';
+    el.disabled = true;
+  }
 });
 
 // Reply auf Thread mit bekannter comment_id
@@ -121,6 +132,7 @@ for r in roots:
 |---|---|---|
 | PAT 403 auf homeassistant-ai/skills | Alle Schreibops scheitern | Browser-DOM nutzen |
 | Convert-to-draft-Falle | Dialog öffnet sich unbeabsichtigt beim Scrollen | Link vor Automation deaktivieren (s.o.) |
+| DOM-Submit schließt PR versehentlich | `button[name=comment_and_close]` wird statt Comment-Button geklickt → PR geschlossen | Pflicht-Disable-Snippet (s.o.) **vor jedem Submit** — deckt alle 3 Varianten ab: Convert to draft, Close pull request, Close and comment |
 | DOM-Timeout mit stiller Ausführung | JS-Fehler, aber Post wurde dennoch abgeschickt | Immer API-Verifikation danach |
 | Textarea nicht befüllbar via `.value = x` | Input-Event fehlt | `nativeInputValueSetter` + `dispatchEvent('input')` |
 | Orphan-Kommentare | Reply landet auf PR-Ebene statt im Thread | Direkt auf `discussion_r<id>` navigieren und replyToThread() nutzen |
