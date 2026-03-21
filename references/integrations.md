@@ -107,6 +107,20 @@ Historik ist oft leer — Recorder schließt `number.*` typischerweise aus (kein
 
 **Empfehlung für saisonal genutzte Objekte:** `calibration_mode: default` statt `heating_power_calibration` verwenden.
 
+### 13.4 Kontrollzyklus — hardcoded 5 Minuten (verifiziert 21.03.2026)
+
+BT berechnet und sendet Sollwerte in einem **fixen 5-Minuten-Intervall** (`async_track_time_interval`, `timedelta(minutes=5)` in `climate.py`).
+
+**Kein konfigurierbarer Parameter** — weder in der UI (Options Flow) noch in `.storage`.
+
+**Praktische Auswirkung bei Überschwingen:**
+Beim Ausregeln eines Temperaturüberschusses sendet BT alle ~5 min einen etwas niedrigeren Sollwert.
+Der Shelly BLU TRV reagiert auf jeden neuen Sollwert mit einer kurzen Stellbewegung (auf → sofort zu),
+weil sein interner Loop den Istwert bereits über dem Soll sieht.
+→ Hörbare Klickfolge (~6–8 Mal in 45 min) ist **normales Verhalten, kein Fehler**.
+
+**Kein Handlungsbedarf** — `tolerance`-Erhöhung würde nur den Einstiegspunkt verschieben, nicht die Anzahl der Zyklen reduzieren.
+
 
 ---
 
