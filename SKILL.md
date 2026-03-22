@@ -20,11 +20,17 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.59.0"
+  version: "2.60.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.60.0 (22.03.2026): references/recorder-stats.md §11.1 reload-Text korrigiert
+      (dritte Stelle derselben falschen Aussage). §19.1 unverifizierbares Zitat
+      entfernt, durch sinngemäße Formulierung ersetzt.
+      references/integrations.md §26.2 Retrofix: homeassistant/enable_entity +
+      disable_entity als REST-Service-Calls ergänzt (live verifiziert LB 22.03.2026,
+      HTTP 200). PR #60 hatte diese Variante übersehen.
     2.59.0 (22.03.2026): references/integrations.md §26.2 kein REST für entity_registry/update;
       WebSocket + MCP-Tool dokumentiert (live verifiziert LB). §26.4 Abschnittsnummer korrigiert
       (war §16.4). §15.4 LB-URL entfernt (instanzspezifisch). SKILL.md §27 Filter ①:

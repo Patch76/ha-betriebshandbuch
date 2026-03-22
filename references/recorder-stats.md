@@ -82,7 +82,7 @@ json.dump(d, open(p,'w'), ensure_ascii=False, separators=(',',':'))
 print(f'OK: {before} -> {after} ({before-after} entfernt)')
 PYEOF
 ```
-Danach: **HA-Vollneustart** (reload überschreibt Storage mit In-Memory-Daten!)
+Danach: **HA-Vollneustart** (reload liest Storage nicht neu ein — HA behält In-Memory-Stand bis Neustart, verifiziert LB 22.03.2026)
 
 ### 11.2 Config-Entry-basierte Sensoren/Helfer
 ```bash
@@ -243,9 +243,9 @@ Nicht jeder negative Balken ist ein statistics-Reset. Reihenfolge der Prüfung:
 | Netto-Bilanz (kann steigen UND fallen) | `total` | Differenz-Logik korrekt für beide Richtungen |
 | Leistung (W), aktueller Messwert | `measurement` | Keine Akkumulation |
 
-**Entscheidungsregel (aus HA Doku):**
-> „In most cases, state_class TOTAL without last_reset should be chosen."
-> `total_increasing` nur wenn Wert ausschließlich steigt und periodisch auf 0 zurückfällt.
+**Entscheidungsregel (HA Dev-Doku, sinngemäß):**
+Für Lifetime-Zähler `state_class: total` bevorzugen.
+`total_increasing` nur wenn Wert ausschließlich steigt und periodisch auf 0 zurückfällt.
 
 **integration-Platform-Default:** `state_class: total` — korrekt für W→kWh Lifetime-Sensoren.
 Nicht auf `total_increasing` ändern, solange kein echter Reset-Zyklus vorliegt.
