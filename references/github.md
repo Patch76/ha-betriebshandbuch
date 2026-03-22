@@ -238,6 +238,16 @@ grep -o '#[a-z0-9-]*' skills/home-assistant-best-practices/SKILL.md
 
 Cross-check every referenced anchor against the generated heading slugs.
 
+**Nach jedem Titelumbenennen:** Alle SKILL.md-Anchor-Links auf die geänderte Datei
+sofort nachziehen — Titelumbenennung ändert den Slug automatisch:
+```bash
+# Beispiel: Titel geändert → neuen Slug prüfen
+node -e "import('github-slugger').then(({default:G})=>{const s=new G();console.log(s.slug('Neuer Titel'));})"
+# Dann in SKILL.md ersetzen:
+grep -n "#alter-slug" skills/home-assistant-best-practices/SKILL.md
+```
+Nicht erst beim nächsten PR entdecken — jeder force-push dismissed eine Maintainer-Approval.
+
 ### 6. Open PRs — overlap check
 
 ```bash
@@ -259,6 +269,14 @@ indented blockquote as an alternative:
 ```
 
 Never as the primary path. The skill must work completely without ha-mcp.
+
+**Pflicht-Grep vor jedem Push:**
+```bash
+grep -rn "ha_rename_entity\|ha_get_integration\|ha_config_set\|ha_config_get\|\bha_[a-z_]*\b\|python_transform\|write_file" \
+  skills/home-assistant-best-practices/
+```
+Trifft: sofort ersetzen durch HA REST-Endpunkt oder generische Beschreibung.
+Erlaubt nur in eingerückten `> **ha-mcp alternative:**`-Blöcken.
 
 ### 8. SKILL.md framing for opinionated content
 
