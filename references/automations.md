@@ -199,6 +199,38 @@ Sensor und Condition `state: "off"` funktionieren korrekt (verifiziert 06.03.202
 ---
 
 
+### 6.11 LoggingUndefined in Template-Conditions — Falle bei Event-Triggern
+
+HA nutzt intern `LoggingUndefined` (kein strictes Jinja2-Undefined) für fehlende Attribute.
+
+**Verhalten (verifiziert auf HA 2026.3):**
+
+| Zugriff | Ergebnis |
+|---|---|
+| `trigger.event` wenn kein Event-Trigger | `LoggingUndefined`-Objekt — **kein** Error |
+| `LoggingUndefined is defined` | `False` — **sicherer Guard** |
+| `'x' in LoggingUndefined.data.entity_id` | `UndefinedError: 'dict object' has no attribute 'event'` |
+| `.split()`, `.isdigit()` auf LoggingUndefined | `UndefinedError` |
+
+**Konsequenz:** `is defined` funktioniert korrekt als Guard. Der Fehler entsteht erst
+bei Operatoren (`in`, `.split()`, Methoden) auf dem Undefined-Objekt — nicht beim
+Attributzugriff selbst.
+
+**Idiomatischer Guard für Event-Trigger-Conditions (HA-empfohlen):**
+```yaml
+condition: template
+value_template: >-
+  {{ trigger.platform == 'event' and
+     trigger.event.data.entity_id is match('device_tracker\.name_\d+$') }}
+```
+`trigger.platform` ist immer im Trigger-Dict vorhanden (bei manuellem Auslösen: `None`).
+Der `and`-Operator short-circuited: `trigger.event` wird nur ausgewertet wenn
+`trigger.platform == 'event'` true ist.
+
+Beide Varianten sind korrekt — `trigger.platform == 'event'` ist idiomatisch sauberer.
+
+---
+
 ## 7. Scripts (scripts.yaml)
 
 ### 7.1 Architektur
