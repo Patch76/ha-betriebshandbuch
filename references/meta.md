@@ -78,6 +78,7 @@ Nummerierte Liste. Nach Erledigung entfernen — nie als "erledigt" markiert ste
   Konsequenz bei Missachtung: lautloser Datenverlust oder inkompletter Schreibvorgang.
 - **Skill-Querverweise** statt Inhaltskopie: `→ Skill §4.1` statt den Regeltext zu wiederholen.
 - **Integrations-spezifische Abschnitte** (z.B. Better Thermostat, Android next_alarm) nur wenn die Integration auf dieser Instanz installiert ist.
+- **Zusatzabschnitte** zwischen ⑥ und Offene Punkte sind erlaubt (z.B. ⑦ Erwartete unavailable Entities) — Nummerierung entsprechend anpassen.
 
 ### 22.3 Version-Bump-Sync (Pflicht bei SKILL.md-Änderungen)
 
