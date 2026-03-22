@@ -20,11 +20,16 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.54.0"
+  version: "2.55.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.55.0 (22.03.2026): §27 §Sicht — Filter ① Faktencheck als Pflicht verschärft:
+      Web-Recherche + Live-Test immer ausführen, kein ungetestetes Vererben, Ungetestetes
+      als [UNVERIFIZIERT] kennzeichnen. Grundprinzip entsprechend geschärft, Widget-Schwelle
+      konkretisiert (≥2 substanzielle Korrekturen). "Kein Fund" aus ② in allgemeines
+      Prinzip verschoben. §Sicht mit §Sicht selbst geprüft — 3 Befunde korrigiert.
     2.54.0 (22.03.2026): §1.6 Logbook-Filter — Ursache ergänzt: offizieller Parameter entity=
       liefert 0 Einträge (Sensor-Ausschluss), entity_id= ignoriert Filter. Konsequenz:
       History-API als Alternative empfohlen. Verifiziert LB + Dev-Doku 22.03.2026.
@@ -743,9 +748,11 @@ curl -s -H "Authorization: token <PAT>" \
 Kanal-Nachrichten oder anderen Outputs. Das Ziel ist ein verbessertes Ergebnis — kein
 erklärendes Widget, keine Analyse-Beschreibung für den Nutzer.
 
-**Grundprinzip:** Jeden Filter aktiv anwenden. Jeder Filter liefert entweder „kein Fund"
-oder eine konkrete Korrektur. Das verbesserte Ergebnis kommt raus, nicht die Beschreibung
-des Prozesses. Widget nur wenn delta zeigenswert.
+**Grundprinzip:** Jeden Filter aktiv anwenden — Filter ① immer mit Web-Recherche
+und Live-Test, nicht nur gedanklich. Vermeintliches Wissen wird nicht ungetestet
+weitergegeben. Jeder Filter liefert entweder „kein Fund" oder eine konkrete Korrektur.
+Das verbesserte Ergebnis kommt raus, nicht die Beschreibung des Prozesses.
+Widget nur wenn ≥2 substanzielle Korrekturen.
 
 ---
 
@@ -753,15 +760,15 @@ des Prozesses. Widget nur wenn delta zeigenswert.
 
 | # | Name | Kernfrage | Konsequenz |
 |---|---|---|---|
-| ① | Faktencheck | Was ist behauptet statt belegt? Verifiziert oder hergeleitet? | Rausnehmen oder verifizieren |
+| ① | Faktencheck | Was ist behauptet statt belegt? Verifiziert oder hergeleitet? | Pflicht: Web-Recherche + Live-Test ausführen. Kein „liegt auf der Hand", kein „war immer so". Ungetestetes rausnehmen oder als `[UNVERIFIZIERT]` kennzeichnen |
 | ② | Black Hat | Was würde ein skeptischer Reviewer sofort angreifen? Aktiv falsifizieren — nicht nur Schwächen erwähnen | Absichern oder einräumen |
 | ③ | Scope | Gehört das hierher? Gibt es das schon? Falscher Detaillevel? | Kürzen, verschieben, streichen |
 | ④ | Pragmatiker | Steht das im Alltag? Live getestet oder nur strukturell hergeleitet? | Belegen oder abschwächen |
 | ⑤ | Leser | Was würde jemand ohne meinen Kontext missverstehen? | Umformulieren |
 | ⑥ | Compliance | CONTRIBUTING.md-konform? Repo-Style? CI/Gemini-Risiko? | Bereinigen |
 
+**„Kein Fund" ist bei jedem Filter ein vollwertiges Ergebnis** — nicht eine Schwäche.
 **② Black Hat ist der wichtigste Filter** — versuche aktiv, das Ergebnis zu widerlegen.
-„Kein Fund" ist ein vollwertiges Ergebnis, nicht eine Schwäche.
 
 ---
 
