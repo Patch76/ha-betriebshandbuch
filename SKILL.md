@@ -20,11 +20,15 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.52.0"
+  version: "2.53.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.53.0 (22.03.2026): §20 Anti-Pattern "Storage reload statt Restart" — Warum-Spalte korrigiert:
+      reload überschreibt Storage NICHT; reload liest Storage auch NICHT neu ein; HA behält
+      In-Memory-Stand bis Vollneustart. Live-verifiziert LB 22.03.2026 (core.area_registry-Test).
+      §20 "New storage-Eintrag" → "Neuer" (Sprachmix).
     2.52.0 (22.03.2026): §4.4 Config-Entry-Flow vollständig (3 Schritte, flow_id, Abbruch-Endpoint,
       verifiziert LB 22.03.2026). §4.2 Verifikationsquelle "sergeykad" → "LB, HA 2026.3".
     2.51.0 (22.03.2026): references/github.md §Git PR-Workflow — Branch-Delete nach
@@ -665,8 +669,8 @@ tde("befehl; echo '__DONE__'\r");
 | `target:` im REST-Body | entity_id top-level | `target:` → HTTP 400 |
 | `/api/config/config_entries/<id>` DELETE | `/entry/<id>` | Ohne `/entry/` → 404 |
 | Sensor ans Dateiende in template.yaml | expliziter `- sensor:`-Block | Block-Falle → stumm verworfen |
-| New storage-Eintrag ohne Vorlage | Vorlage-Eintrag 1:1 lesen | Pflichtfelder-Inkonsistenz je Datei |
-| Storage reload statt Restart | Vollneustart | reload überschreibt Storage |
+| Neuer storage-Eintrag ohne Vorlage | Vorlage-Eintrag 1:1 lesen | Pflichtfelder-Inkonsistenz je Datei |
+| Storage reload statt Restart | Vollneustart | reload liest Storage nicht neu ein — HA behält In-Memory-Stand bis Neustart (verifiziert LB 22.03.2026) |
 | `datetime.utcnow().isoformat()` | `datetime.now(timezone.utc).isoformat()` | kein Timezone-Info (deprecated) |
 | `collection.hash` in entity_registry setzen | weglassen | Optional, Formel unbekannt |
 | `curl ... \| python3 << 'HEREDOC'` | Zwischendatei + `python3 << 'HEREDOC'` | Heredoc verdrängt Pipe auf stdin |
