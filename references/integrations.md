@@ -335,11 +335,13 @@ Input Mode muss auf **Button/Taster** stehen damit Event-Entity entsteht.
 | Kurz vor Alarmzeit `unavailable` | Sensor kann unmittelbar vor Auslösung seinen State verlieren |
 
 > **`disabled_by: integration`:** Die Companion-App-Integration deaktiviert den Sensor standardmäßig.
-> Aktivierung — kein REST-Endpunkt (HTTP 404, verifiziert LB 22.03.2026); nur via WebSocket oder MCP-Tool:
+> Aktivierung via REST-Service (einfachste Methode, verifiziert LB 22.03.2026):
+> ```bash
+> POST /api/services/homeassistant/enable_entity
+> Body: {"entity_id": "sensor.<gerät>_next_alarm"}
 > ```
-> WS: {"type": "config/entity_registry/update", "entity_id": "sensor.<gerät>_next_alarm", "disabled_by": null}
-> ```
-> Oder: `ha_set_entity(entity_id="sensor.<gerät>_next_alarm", disabled_by=null)` [MCP, nutzt intern WebSocket].
+> Alternativ WS: `{"type": "config/entity_registry/update", "entity_id": "...", "disabled_by": null}`
+> oder MCP: `ha_set_entity(entity_id="sensor.<gerät>_next_alarm", disabled_by=null)`.
 > Nach Aktivierung: 60-Sekunden-Wartezeit, dann HA-Reload der Companion-App-Integration.
 > `sensor.<gerät>_last_update_trigger` ist ebenfalls `disabled_by: integration` — zusammen aktivieren.
 
