@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.64.0"
+  version: "2.65.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.65.0 (22.03.2026): §27 Filter ⑥ Compliance auf Per-Commit-Pflicht ausgeweitet —
+      gilt für jeden Commit auf offenem PR, nicht nur Ersteinreichung. Per-Commit-Pflicht-Abschnitt
+      ergänzt. Verifiziert aus PR-#24-Forensik (22.03.2026).
     2.64.0 (22.03.2026): references/github.md — diff_hunk als Ursache des JSONDecodeError
       präzisiert, cli/cli#10474 verlinkt (RFC-8259-Verstoß GitHub API, noch offen).
     2.63.0 (22.03.2026): references/github.md Fallstricke-Tabelle — JSONDecodeError bei
@@ -801,10 +804,18 @@ Widget nur wenn ≥2 substanzielle Korrekturen.
 | ③ | Scope | Gehört das hierher? Gibt es das schon? Falscher Detaillevel? | Kürzen, verschieben, streichen |
 | ④ | Pragmatiker | Steht das im Alltag? Live getestet oder nur strukturell hergeleitet? | Belegen oder abschwächen |
 | ⑤ | Leser | Was würde jemand ohne meinen Kontext missverstehen? | Umformulieren |
-| ⑥ | Compliance | CONTRIBUTING.md-konform? Repo-Style? CI/Gemini-Risiko? | Bereinigen |
+| ⑥ | Compliance | CONTRIBUTING.md-konform? Repo-Style? CI/Gemini-Risiko? Gilt für den **gesamten Diff** — auch für neu hinzugefügte Fix-Commits nach Review-Feedback, nicht nur für den Ersteinreichungs-Diff | Bereinigen — jeder neue Commit auf einem offenen PR durchläuft dieselbe Prüfung |
 
 **„Kein Fund" ist bei jedem Filter ein vollwertiges Ergebnis** — nicht eine Schwäche.
 **② Black Hat ist der wichtigste Filter** — versuche aktiv, das Ergebnis zu widerlegen.
+
+### Per-Commit-Pflicht bei offenen PRs
+
+⑥ Compliance und ③ Scope gelten für **jeden Commit** auf einem offenen PR — nicht nur für den initialen Diff:
+- Jeder Fix-Commit kann neue CONTRIBUTING.md-Verstöße einbringen (Tool-Namen, CI-Felder, instanzspezifische Werte)
+- Nach jedem Commit: Diff des gesamten PRs (`GET /repos/.../pulls/NR` Accept: `vnd.github.diff`) prüfen — nicht nur den neuen Commit
+- Besonders kritisch: `metadata.version`, MCP-Tool-Namen, deutsche Textstellen, instanzspezifische Werte (IPs, Schwellwerte, Dateipfade)
+- Verifiziert 22.03.2026 — Ursache von 2 der 3 sergeykad-Review-Runden auf PR #24
 
 ---
 
