@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.51.0"
+  version: "2.52.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.52.0 (22.03.2026): §4.4 Config-Entry-Flow vollständig (3 Schritte, flow_id, Abbruch-Endpoint,
+      verifiziert LB 22.03.2026). §4.2 Verifikationsquelle "sergeykad" → "LB, HA 2026.3".
     2.51.0 (22.03.2026): references/github.md §Git PR-Workflow — Branch-Delete nach
       Squash-Merge als Pflichtschritt ergänzt (fehlte, wurde von Gegenstelle angemerkt).
       Version-Bump nachgeholt (PR #51 hatte keinen).
