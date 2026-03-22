@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.49.0"
+  version: "2.50.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.50.0 (22.03.2026): §2.3b Querverweis §11.1 → §2.10 (SSH-Terminal, nicht Zombie-Bereinigung).
+      §2.7 Ausnahmeliste um lb_to_rbo.md ergänzt. §2.7 repr()-Kommentar "Screenshot" → "Darstellung".
+      §2.10.1 Cyrillisches "т" (U+0442) → lateinisches "t" in "wrappt".
     2.49.0 (22.03.2026): §0 Backup-Verweis auf §2.7 (2-Slot-Rotation, cp-Snippet entfernt).
       §0 web_fetch-Regel korrigiert: user-provided URLs erlaubt (Anthropic Docs verifiziert 22.03.2026).
       §0 15-Minuten-Heuristik → max. 3 gescheiterte Versuche. §1.1 HTTP 500 ergänzt (→ §2.3b).
@@ -365,7 +368,7 @@ curl ... -d "{\"path\":\"...\",\"content_b64\":\"<3MB-String>\"}"
 await fetch('.../write_file?return_response', {body: JSON.stringify({...riesiger-b64...})})
 ```
 
-**RICHTIG — direktes Python auf der HA-Maschine via SSH-Terminal (§11.1):**
+**RICHTIG — direktes Python auf der HA-Maschine via SSH-Terminal (→ §2.10):**
 ```python
 # Direkt in /config/ schreiben — kein Netzwerk-Overhead, kein Payload-Limit
 python3 /dev/stdin << 'PYEOF'
@@ -496,7 +499,7 @@ r_bak = write_file("DATEI.bak", c_original)
 assert r_bak["service_response"]["returncode"] == 0, "Backup fehlgeschlagen — Abbruch"
 ```
 
-Nicht nötig für: session_handoff.md, rbo_to_lb.md (unkritisch/ersetzbar).
+Nicht nötig für: session_handoff.md, rbo_to_lb.md, lb_to_rbo.md (unkritisch/ersetzbar).
 Wiederherstellung: `write_file("DATEI", read_file("/config/DATEI.bak"))`
 
 #### Vollständiges Muster
@@ -535,7 +538,7 @@ c = read_file("/config/DATEI")
 
 # 2. repr()-CHECK (Pflicht vor str.replace)
 # python3 -c "c=open('/config/FILE').read(); [print(repr(l)) for l in c.splitlines() if 'Begriff' in l]"
-# Grund: Umlaute, Quotes, Whitespace können vom Screenshot abweichen → replace() schlägt lautlos fehl
+# Grund: Umlaute, Quotes, Whitespace im Dateiinhalt können von der Darstellung abweichen → replace() schlägt lautlos fehl
 # ACHTUNG EOF: Letzte Zeile hat oft KEIN trailing \n.
 #   Anker 1:1 aus repr()-Output kopieren — nie aus Screenshot oder Gedächtnis.
 
@@ -595,7 +598,7 @@ Verfügung — nicht in Automationen, Scripts oder template.yaml.
 **Einzige korrekte Methode:** `window.term._core.coreService.triggerDataEvent(s)`
 
 `paste()` **ist FALSCH** für ausführbare Befehle: zsh hat Bracketed Paste Mode aktiv,
-`paste()` wrappт den Inhalt mit `ESC[200~...ESC[201~` — `\r` wird als Literal,
+`paste()` wrappt den Inhalt mit `ESC[200~...ESC[201~` — `\r` wird als Literal,
 nicht als PTY-Signal behandelt. Befehl tippt, führt aber nie aus.
 
 ```javascript
