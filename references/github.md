@@ -28,6 +28,7 @@ PAT-Credentials ausschließlich in AW/Schritt 2 — nie in claude.md, github.md 
 PR-Workflow (Patch76/ha-betriebshandbuch):
 - Draft anlegen + direkt squash-mergen via PAT — kein Browser nötig
 - `PUT /repos/Patch76/ha-betriebshandbuch/pulls/{nr}/merge` mit `merge_method: squash`
+- Branch nach Merge löschen: `DELETE /repos/Patch76/ha-betriebshandbuch/git/refs/heads/{branch}`
 
 Squash-Merge macht `compare/main...{branch}` `ahead_by` unzuverlässig → PR `merged_at` als Zeitreferenz.
 
