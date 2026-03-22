@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.55.0"
+  version: "2.56.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.56.0 (22.03.2026): §23 Verifikationstabelle — Trace-Hinweis korrigiert (kein REST-Endpunkt,
+      nur UI/WebSocket, verifiziert LB). Logbuch-Check kontextualisiert + §1.6-Verweis.
+      3 fehlende Kontexte ergänzt: Storage, Config-Entry, YAML-Reload.
     2.55.0 (22.03.2026): §27 §Sicht — Filter ① Faktencheck als Pflicht verschärft:
       Web-Recherche + Live-Test immer ausführen, kein ungetestetes Vererben, Ungetestetes
       als [UNVERIFIZIERT] kennzeichnen. Grundprinzip entsprechend geschärft, Widget-Schwelle
@@ -710,12 +713,15 @@ Nach jedem nicht-trivialen Schritt den passenden API-Call wählen:
 
 | Kontext | Verifikation |
 |---|---|
-| Automation geändert | `GET /api/config/automation/<id>` + Logbuch/Trace prüfen |
+| Automation geändert | `GET /api/config/automation/<id>` + `last_triggered` via `GET /api/states/automation.<name>` prüfen (Trace nur per UI/WebSocket, kein REST-Endpunkt) |
 | Entity-State erwartet | `GET /api/states/<entity_id>` |
-| Logbuch-Check | `GET /api/logbook/<iso_timestamp>` |
+| Automation ausgelöst (Test) | `GET /api/logbook/<iso>` — Filter unzuverlässig (→ §1.6); `last_triggered` via States verlässlicher |
 | Shell-Command ausgeführt | `rc=0` prüfen + stdout auf Inhalt validieren |
 | Template-Sensor neu/geändert | `POST /api/template` mit Ausdruck direkt testen |
 | Helper-Wert gesetzt | `GET /api/states/<helper_entity_id>` |
+| Storage-Datei geändert | HA-Neustart + `read_file` + Stichprobe des geänderten Werts (verifiziert LB 22.03.2026) |
+| Config-Entry geändert/gelöscht | `GET /api/config/config_entries/` → Entry vorhanden/weg? |
+| YAML neu geladen | `POST /api/config/core/check_config` → valid + reload-Service + `GET /api/states/<entity>` |
 
 ---
 
