@@ -14,7 +14,7 @@ python3 -c "import json; reg=json.load(open('/config/.storage/DATEI')); \
 ```
 
 **Nach Storage-Änderung:** HA **vollständig neu starten** (kein reload —
-reload überschreibt Storage mit In-Memory-Daten!).
+reload liest Storage nicht neu ein; HA behält In-Memory-Stand bis Neustart, verifiziert LB 22.03.2026).
 
 ### 5.2 Zeitstempel-Format je Datei (verifiziert 06.03.2026)
 
@@ -53,7 +53,8 @@ Die Hash-Formel `md5(unique_id)` liefert nicht den gespeicherten Wert — Herkun
 
 **Korrekter Weg (verifiziert 11.03.2026):**
 1. Beide Storage-Dateien schreiben (siehe unten)
-2. `ha_reload_core(target="input_booleans")` bzw. `target="input_datetimes"` etc. aufrufen — **kein voller HA-Neustart nötig**
+2. `POST /api/services/input_boolean/reload` (bzw. `input_select/reload`, `input_datetime/reload` etc.) aufrufen — **kein voller HA-Neustart nötig**
+   (ha_reload_core mit target=… → HTTP 400, verifiziert LB 22.03.2026)
 3. HA ergänzt `core.entity_registry` automatisch — manuelles Schreiben in entity_registry ist NICHT nötig.
 
 `POST /api/config/config_entries/flow` mit `{"handler": "input_boolean"}` → `"message": "Invalid handler specified"` (kein Config-Flow-Handler).
@@ -183,7 +184,8 @@ new_config = json.loads(config_str)
 **Warum nicht `write_file` + Restart:**
 - Direkte `.storage`-Edits werden erst beim nächsten HA-Start eingelesen
 - `ha_config_set_dashboard(config=...)` ist atomar + sofort wirksam
-- Bei write_file: Datei >~40 KB → HTTP 500 (Workaround: `json.dumps(data, separators=(',',':'))`)
+- Bei write_file: Datei >~95 KB → HTTP 500 (→ §2.3b, verifiziert LB). Dashboard-Dateien oft >95 KB
+  → direkt via SSH-Terminal schreiben (→ §2.10).
 
 **Für alle storage-mode Dashboards:**
 ```python
