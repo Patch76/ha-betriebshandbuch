@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.57.0"
+  version: "2.58.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.58.0 (22.03.2026): references/automations.md §9.3 due_date — RFC-5545-+1-Tag gilt
+      nur für Google Tasks (bekannter Bug), nicht für local_todo (live verifiziert LB).
+      §9.3 todo.get_items "ohne status" → alle nicht-abgeschlossenen Items (nicht nur needs_action).
     2.57.0 (22.03.2026): references/api-storage.md §5.1 reload-Formulierung korrigiert
       (liest nicht, überschreibt nicht — In-Memory-Stand bleibt, verifiziert LB).
       §5.4 ha_reload_core(target=…) → HTTP 400; korrekt: input_boolean/reload (verifiziert).
