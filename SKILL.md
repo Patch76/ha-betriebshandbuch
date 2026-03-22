@@ -20,11 +20,16 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.48.0"
+  version: "2.49.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.49.0 (22.03.2026): §0 Backup-Verweis auf §2.7 (2-Slot-Rotation, cp-Snippet entfernt).
+      §0 web_fetch-Regel korrigiert: user-provided URLs erlaubt (Anthropic Docs verifiziert 22.03.2026).
+      §0 15-Minuten-Heuristik → max. 3 gescheiterte Versuche. §1.1 HTTP 500 ergänzt (→ §2.3b).
+      §1.4 states.entity_id → states['sensor.x'] (konkretes Beispiel). §1.5 History-Beispiel
+      zeigt beide Varianten (mit/ohne ISO-Z).
     2.48.0 (22.03.2026): §2.3b Kurzbefehl-Kommentar korrigiert (50000→90000 Bytes, verifiziert per Binärsuche LB 22.03.2026). §2.9 Wortstellung 'write_file shell_command' → 'shell_command write_file' (Leserklarheit).
     2.47.0 (22.03.2026): §27 neu — §Sicht Sechsfach-Review: Qualitätsfilter vor Publish.
       Sechs aktive Filter (Faktencheck, Black Hat, Scope, Pragmatiker, Leser, Compliance).
@@ -123,15 +128,13 @@ metadata:
 
 - **Verifikationspflicht:** Kein Wissen ungeprüft übernehmen — weder aus Doku noch aus
   einer anderen Claude-Instanz. Vor Eintrag in claude.md live testen oder per API verifizieren.
-- **Backup vor jeder destruktiven Aktion:**
-```bash
-  cp /config/DATEI /config/tmp_backup_DATEI
-```
+- **Backup vor jeder destruktiven Aktion (→ §2.7 — 2-Slot-Rotation):**
+  `DATEI.bak` → `DATEI.bak.prev` · `DATEI` → `DATEI.bak` · erst dann schreiben.
   Gilt für: automations.yaml, template.yaml, scripts.yaml, scenes.yaml, alle `.storage/`-Dateien.
-- **Bei unbekanntem Fehler zuerst `web_search`** — nie mehr als 15 Minuten blind debuggen.
-- **Öffentliche Doku-URLs:** `web_fetch` ist erst nach vorherigem `web_search` auf dieselbe Domain möglich
-  (URL muss in Suchergebnissen erschienen sein). Browser (`computer`-Tool) ist für öffentliche Docs NICHT
-  nötig — nur für HA-UI (Auth-geschützt) oder interaktive Seiten erforderlich.
+- **Bei unbekanntem Fehler zuerst `web_search`** — nicht mehr als 3 gescheiterte Versuche ohne neue Information.
+- **Öffentliche Doku-URLs:** `web_fetch` nur mit URLs die im Kontext bekannt sind: vom Nutzer angegeben,
+  aus `web_search`-Ergebnissen oder früheren `web_fetch`-Calls. Keine selbst konstruierten URLs.
+  Browser (`computer`-Tool) nur für HA-UI (Auth-geschützt) oder interaktive Seiten — nicht für Doku.
   Muster: `web_search("HA integration xyz site:developers.home-assistant.io")` → dann `web_fetch(url)`.
 - **Verifikation vor destruktiver Aktion:** Befunde, die eine destruktive Aktion begründen
   (Löschen, Entfernen, PR), immer einzeln und isoliert verifizieren — nie aus Schleifenergebnissen
@@ -207,7 +210,7 @@ Content-Type: application/json
 ```
 
 HTTP-Statuscodes: `200` OK, `201` Created, `400` Bad Request, `401` Unauthorized,
-`404` Not Found.
+`404` Not Found, `500` Server Error (z.B. Payload-Limit `write_file` → §2.3b).
 
 ### 1.2 Wichtige Endpunkte (verifiziert)
 
@@ -267,11 +270,12 @@ nicht `true`/`false` (JSON).
 
 `last_changed` in Templates:
 - `state_attr(entity, 'last_changed')` → `None` (funktioniert nicht)
-- `states.entity_id.last_changed | string` → funktioniert
+- `states['sensor.mein_sensor'].last_changed | string` → funktioniert
 
 ### 1.5 History-API
 ```
-GET /api/history/period/<ISO-Z>?filter_entity_id=<entity_id>&minimal_response=true
+GET /api/history/period?filter_entity_id=<entity_id>&minimal_response=true          # letzter Tag
+GET /api/history/period/2026-03-22T00:00:00Z?filter_entity_id=<entity_id>&minimal_response=true  # ab Startzeitpunkt
 ```
 - `minimal_response=true` **immer** angeben (deutlich schneller).
 - `no_attributes=true` für noch schnellere Abfragen ohne Attribute.
