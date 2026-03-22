@@ -334,7 +334,7 @@ actions:
 Services (Referenz per **Name**, nicht per UID!):
 ```
 todo.add_item: item + optional due_date ODER due_datetime (nicht beide → 400)
-todo.get_items: ohne status → nur needs_action-Items. Mit ?return_response.
+todo.get_items: ohne status → alle nicht-abgeschlossenen Items (needs_action etc.). Mit ?return_response.
   Antwort: service_response["todo.<entity_id>"]["items"]
 todo.update_item / todo.remove_item: Nichtexistenz → HTTP 500 (nicht 404!)
 todo.remove_completed_items: keine weiteren Felder
