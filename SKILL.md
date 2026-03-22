@@ -20,11 +20,12 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.47.0"
+  version: "2.48.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.48.0 (22.03.2026): §2.3b Kurzbefehl-Kommentar korrigiert (50000→90000 Bytes, verifiziert per Binärsuche LB 22.03.2026). §2.9 Wortstellung 'write_file shell_command' → 'shell_command write_file' (Leserklarheit).
     2.47.0 (22.03.2026): §27 neu — §Sicht Sechsfach-Review: Qualitätsfilter vor Publish.
       Sechs aktive Filter (Faktencheck, Black Hat, Scope, Pragmatiker, Leser, Compliance).
       Mechanik: interner Korrekturlauf → verbessertes Ergebnis, kein erklärendes Widget.
@@ -378,7 +379,7 @@ PYEOF
 
 **Kurzbefehl zum Prüfen:**
 ```bash
-wc -c /config/.storage/DATEI   # > 50000 Bytes → SSH-Terminal verwenden
+wc -c /config/.storage/DATEI   # > 90000 Bytes → SSH-Terminal verwenden
 ```
 
 ### 2.4 delete_file (verifiziert 07.03.2026)
@@ -573,8 +574,8 @@ NICHT standardmäßig vorhanden.
 - Legacy: `GET /api/services` → domain `python_script` vorhanden?
 - pyscript: `GET /api/services` → domain `pyscript` vorhanden?
 
-Falls nicht verfügbar: File-Schreiben ausschließlich via `write_file`
-shell_command (§2.3). `open()` steht nur in Add-ons und SSH zur
+Falls nicht verfügbar: File-Schreiben ausschließlich via shell_command
+`write_file` (§2.3). `open()` steht nur in Add-ons und SSH zur
 Verfügung — nicht in Automationen, Scripts oder template.yaml.
 
 ### 2.10 SSH-Terminal — Verhaltensregeln
