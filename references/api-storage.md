@@ -157,7 +157,12 @@ entities = result["result"]   # Liste mit Einträgen {ei, pl, lb, di, ...}
 ### 17.5 Dashboard-Migration nach Entity-Rename (verifiziert 21.03.2026)
 
 **WICHTIG: `ha_config_set_dashboard` nutzt `websocket_lovelace_save_config`** — kein HA-Restart nötig.
-Direkte `.storage`-Datei-Edits (via `write_file`) benötigen dagegen einen Restart.
+Direkte `.storage`-Datei-Edits (via `write_file`) benötigen **für Lovelace-Dashboards** einen Restart.
+
+**Ausnahme: `.storage/energy` — kein Restart nötig (verifiziert 22.03.2026, HA 2026.3.3):**
+HA überwacht `.storage/energy` und lädt die Datei dynamisch neu — Änderungen greifen sofort.
+Workflow: Datei via `write_file` (4 KB, kein 95-KB-Problem) → HA übernimmt innerhalb ~3 Sekunden.
+WebSocket-Alternative: `energy/get_prefs` + `energy/save_prefs` (ebenfalls sofort wirksam, lokal nutzbar).
 
 **Korrekter Workflow (kein Restart):**
 ```python
@@ -181,8 +186,8 @@ new_config = json.loads(config_str)
 - ✅ Erlaubt: dict/list-Zugriff, Schleifen, `split()`+`join()`, String-Methoden
 - Für Bulk-Replace Entity-IDs: **nicht geeignet** → `config=`-Parameter verwenden
 
-**Warum nicht `write_file` + Restart:**
-- Direkte `.storage`-Edits werden erst beim nächsten HA-Start eingelesen
+**Warum nicht `write_file` + Restart:** (gilt nur für Lovelace)
+- Direkte `.storage/lovelace*`-Edits werden erst beim nächsten HA-Start eingelesen
 - `ha_config_set_dashboard(config=...)` ist atomar + sofort wirksam
 - Bei write_file: Datei >~95 KB → HTTP 500 (→ §2.3b, verifiziert LB). Dashboard-Dateien oft >95 KB
   → direkt via SSH-Terminal schreiben (→ §2.10).
