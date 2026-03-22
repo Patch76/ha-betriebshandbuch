@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.63.0"
+  version: "2.64.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.64.0 (22.03.2026): references/github.md — diff_hunk als Ursache des JSONDecodeError
+      präzisiert, cli/cli#10474 verlinkt (RFC-8259-Verstoß GitHub API, noch offen).
     2.63.0 (22.03.2026): references/github.md Fallstricke-Tabelle — JSONDecodeError bei
       GitHub-API-Responses dokumentiert: Comment-Bodies mit Steuerzeichen → strict=False.
     2.62.0 (22.03.2026): references/github.md DOM-Reply-Muster überarbeitet —
