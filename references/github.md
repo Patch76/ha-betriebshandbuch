@@ -297,3 +297,37 @@ document the abandon path directly after the warning:
 > ⚠️ Only one active Options Flow per Config Entry. Abandon before retrying:
 > `DELETE /api/config/config_entries/options/flow/<flow_id>`
 ```
+
+### 10. GitHub Discussions — GraphQL API (kein Browser)
+
+Discussions NIEMALS via Browser-DOM anlegen — immer GraphQL:
+
+```bash
+PAT="..."
+curl -s -X POST -H "Authorization: token $PAT" \
+  -H "Content-Type: application/json" \
+  -d "{"query": "mutation { createDiscussion(input: {repositoryId: \"REPO_ID\", categoryId: \"CAT_ID\", title: \"TITLE\", body: \"BODY\"}) { discussion { number url } } }"}" \
+  "https://api.github.com/graphql"
+```
+
+**homeassistant-ai/skills IDs (verifiziert 22.03.2026):**
+
+| Kategorie | categoryId |
+|---|---|
+| Announcements | `DIC_kwDOREnDwM4C1st1` |
+| General | `DIC_kwDOREnDwM4C1st2` |
+| Ideas | `DIC_kwDOREnDwM4C1st4` |
+| Polls | `DIC_kwDOREnDwM4C1st6` |
+| Q&A | `DIC_kwDOREnDwM4C1st3` |
+| Show and tell | `DIC_kwDOREnDwM4C1st5` |
+
+Repository-ID: `R_kgDOREnDwA`
+
+Kommentar auf Discussion:
+```bash
+# Node-ID der Discussion holen, dann:
+curl -s -X POST -H "Authorization: token $PAT" \
+  -H "Content-Type: application/json" \
+  -d "{"query": "mutation { addDiscussionComment(input: {discussionId: \"DISCUSSION_NODE_ID\", body: \"TEXT\"}) { comment { id } } }"}" \
+  "https://api.github.com/graphql"
+```
