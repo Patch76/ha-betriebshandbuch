@@ -20,11 +20,13 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.45.0"
+  version: "2.46.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.46.0 (22.03.2026): references/github.md §10 neu — GraphQL Discussions API (POST ohne Browser).
+      Session-34-Erkenntnisse: LoggingUndefined-Kontext, Anchor-Sync-Muster, Tool-Namen-Grep.
     2.45.0 (21.03.2026): §2.7 Backup-Pflicht mit 2-Slot-Rotation ergänzt (DATEI.bak + DATEI.bak.prev).
       Gilt für kritische Dateien. CLAUDE.md §⓪ + §! verschärft.
     2.44.0 (21.03.2026): §2.10.1 neu — SSH-Terminal-Eingabe: triggerDataEvent als einzig
