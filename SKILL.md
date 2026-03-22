@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.53.0"
+  version: "2.54.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.54.0 (22.03.2026): §1.6 Logbook-Filter — Ursache ergänzt: offizieller Parameter entity=
+      liefert 0 Einträge (Sensor-Ausschluss), entity_id= ignoriert Filter. Konsequenz:
+      History-API als Alternative empfohlen. Verifiziert LB + Dev-Doku 22.03.2026.
     2.53.0 (22.03.2026): §20 Anti-Pattern "Storage reload statt Restart" — Warum-Spalte korrigiert:
       reload überschreibt Storage NICHT; reload liest Storage auch NICHT neu ein; HA behält
       In-Memory-Stand bis Vollneustart. Live-verifiziert LB 22.03.2026 (core.area_registry-Test).
@@ -300,8 +303,12 @@ GET /api/logbook/<ISO-Z>?entity_id=<entity_id>
 - Zeitstempel-Formate: **beide** werden akzeptiert (verifiziert 07.03.2026):
   - `2026-03-07T00:00:00.000Z` (UTC mit Z)
   - `2026-03-07T00:00:00+00:00` (UTC mit Offset)
-- `entity_id=`-Filter funktioniert **nicht zuverlässig** — alle Entities können zurückkommen.
-  (Verifiziert 06.03.2026: `entity=` liefert 0 Ergebnisse, `entity_id=` liefert ungefilterte Einträge.)
+- **Filter — beide Parameter unzuverlässig** (verifiziert LB 22.03.2026):
+  - Offizieller Parameter laut Dev-Doku: `entity=<entity_id>` → liefert 0 Einträge
+    (Sensor-Entitäten mit `unit_of_measurement` werden vom Logbook automatisch ausgeschlossen)
+  - Inoffizieller Parameter: `entity_id=<entity_id>` → ignoriert Filter, liefert alle Domains
+  - **Konsequenz:** Logbook-API für gezieltes Entity-Filtering praktisch unbrauchbar;
+    für Entity-Historie stattdessen History-API (§1.5) verwenden.
 
 ### 1.7 Nicht verfügbare Endpunkte
 
