@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.50.0"
+  version: "2.51.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.51.0 (22.03.2026): references/github.md §Git PR-Workflow — Branch-Delete nach
+      Squash-Merge als Pflichtschritt ergänzt (fehlte, wurde von Gegenstelle angemerkt).
+      Version-Bump nachgeholt (PR #51 hatte keinen).
     2.50.0 (22.03.2026): §2.3b Querverweis §11.1 → §2.10 (SSH-Terminal, nicht Zombie-Bereinigung).
       §2.7 Ausnahmeliste um lb_to_rbo.md ergänzt. §2.7 repr()-Kommentar "Screenshot" → "Darstellung".
       §2.10.1 Cyrillisches "т" (U+0442) → lateinisches "t" in "wrappt".
