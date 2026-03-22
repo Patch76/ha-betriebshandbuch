@@ -20,11 +20,14 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.46.0"
+  version: "2.47.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.47.0 (22.03.2026): §27 neu — §Sicht Sechsfach-Review: Qualitätsfilter vor Publish.
+      Sechs aktive Filter (Faktencheck, Black Hat, Scope, Pragmatiker, Leser, Compliance).
+      Mechanik: interner Korrekturlauf → verbessertes Ergebnis, kein erklärendes Widget.
     2.46.0 (22.03.2026): references/github.md §10 neu — GraphQL Discussions API (POST ohne Browser).
       Session-34-Erkenntnisse: LoggingUndefined-Kontext, Anchor-Sync-Muster, Tool-Namen-Grep.
     2.45.0 (21.03.2026): §2.7 Backup-Pflicht mit 2-Slot-Rotation ergänzt (DATEI.bak + DATEI.bak.prev).
@@ -707,4 +710,51 @@ curl -s -H "Authorization: token <PAT>" \
 | `references/meta.md` | §21, §22 | Analyse-Reports, CLAUDE.md-Template |
 
 **Lookup-Kette:** Aufgabe → CLAUDE.md §-Verzeichnis (§→Thema) → dieser Index (§→Datei) → curl
+
+## 27. §Sicht — Sechsfach-Review (Qualitätsfilter vor Publish)
+
+### Zweck
+
+§Sicht ist ein interner Korrekturlauf **vor** dem Veröffentlichen von PRs, Issue-Kommentaren,
+Kanal-Nachrichten oder anderen Outputs. Das Ziel ist ein verbessertes Ergebnis — kein
+erklärendes Widget, keine Analyse-Beschreibung für den Nutzer.
+
+**Grundprinzip:** Jeden Filter aktiv anwenden. Jeder Filter liefert entweder „kein Fund"
+oder eine konkrete Korrektur. Das verbesserte Ergebnis kommt raus, nicht die Beschreibung
+des Prozesses. Widget nur wenn delta zeigenswert.
+
+---
+
+### Die sechs Filter
+
+| # | Name | Kernfrage | Konsequenz |
+|---|---|---|---|
+| ① | Faktencheck | Was ist behauptet statt belegt? Verifiziert oder hergeleitet? | Rausnehmen oder verifizieren |
+| ② | Black Hat | Was würde ein skeptischer Reviewer sofort angreifen? Aktiv falsifizieren — nicht nur Schwächen erwähnen | Absichern oder einräumen |
+| ③ | Scope | Gehört das hierher? Gibt es das schon? Falscher Detaillevel? | Kürzen, verschieben, streichen |
+| ④ | Pragmatiker | Steht das im Alltag? Live getestet oder nur strukturell hergeleitet? | Belegen oder abschwächen |
+| ⑤ | Leser | Was würde jemand ohne meinen Kontext missverstehen? | Umformulieren |
+| ⑥ | Compliance | CONTRIBUTING.md-konform? Repo-Style? CI/Gemini-Risiko? | Bereinigen |
+
+**② Black Hat ist der wichtigste Filter** — versuche aktiv, das Ergebnis zu widerlegen.
+„Kein Fund" ist ein vollwertiges Ergebnis, nicht eine Schwäche.
+
+---
+
+### Ablauf
+
+1. Output erzeugen (PR-Text, Kommentar, Kanal-Nachricht)
+2. §Sicht: alle 6 Filter sequenziell durchlaufen
+3. Gefundene Probleme direkt korrigieren — nicht dokumentieren
+4. Verbessertes Ergebnis ausgeben
+5. Optional: kompakte Delta-Liste wenn Korrekturen substanziell waren
+
+---
+
+### Scope-Hinweis für upstream PRs
+
+③ Scope ist bei `homeassistant-ai/skills`-PRs besonders kritisch:
+- Inhalt nur wenn offizielles HA-Verhalten oder breiter Community-Konsens
+- Keine MCP-Tool-Namen, keine opinionated conventions
+- Kein Duplikat zu bestehendem Inhalt in anderen Referenz-Dateien
 
