@@ -248,6 +248,7 @@ for r in roots:
 | Gemini re-review nicht automatisch | Kein neuer Review-Durchlauf | `/gemini review` als PR-Kommentar posten |
 | Fork-PR CI wartet | `1 workflow awaiting approval` | Maintainer-Approval abwarten — kein Handlungsbedarf |
 | Ghost-Comment: API 404, DOM rendert "Sorry, something went wrong" | Comment nicht im DOM auffindbar, kein Delete-Menü | Immer zuerst via API prüfen ob Comment noch existiert; 404 = bereits gelöscht |
+| `json.JSONDecodeError: Invalid control character` beim Parsen von GitHub-API-Responses | Comment-Bodies enthalten unkodierte Steuerzeichen (z.B. `\t`, `\r\n` in Markdown-Code-Blöcken) — `json.load()` strict=True (default) lehnt diese ab | `json.load(fp, strict=False)` oder `json.loads(text, strict=False)` verwenden — parst auch Responses mit eingebetteten Kontrollzeichen. Betrifft Pull-Comments, Issue-Comments, Review-Bodies. |
 | Issue-Kommentar löschen scheitert mit 403 | Eigener Kommentar im Fremd-Repo nicht via PAT löschbar | Browser-DOM: 3-Punkt-Menü im Comment nutzen |
 | resolveReviewThread FORBIDDEN via PAT | Upstream-Repo erlaubt keine Thread-Resolves via PAT | Browser-DOM: „Resolve conversation"-Button im Thread-Container klicken |
 | Outdated Threads nicht im Files-Tab | discussion_r<id> nicht gefunden | Conversation-Tab öffnen; details-Elemente mit summary=Dateiname per JS öffnen (details.open=true) |
