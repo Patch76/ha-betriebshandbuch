@@ -78,7 +78,7 @@ template:
   Bevorzugt: `has_value('sensor.quelle')`, alternativ:
   `"{{ states('sensor.quelle') not in ['unavailable','unknown','none'] }}"`
 
-**state_class — optional, aber empfohlen für numerische Sensoren (verifiziert sergeykad 2026.3):**
+**state_class — optional, aber empfohlen für numerische Sensoren (verifiziert LB, HA 2026.3):**
 `state_class` ist **kein** Pflichtfeld — es ist opt-in für Long-Term-Statistiken.
 Ohne `state_class` schreibt HA keine Langzeit-Statistiken (kein Eintrag in `statistics_meta`).
 Nicht setzen bei Diagnostic- oder One-Shot-Sensoren (z.B. `unit_of_measurement: "ms"` ohne Statistik-Bedarf).
@@ -117,11 +117,21 @@ Vorteil: Aktualisiert nur bei tatsächlicher Änderung, kein Polling.
 
 2. **Config-Entry** (bevorzugt für einzelne Sensoren):
 ```
+   # Schritt 1: Flow initiieren
    POST /api/config/config_entries/flow
    Body: {"handler": "template", "show_advanced_options": false}
-   → Typ wählen → {"name": "...", "state": "{{ ... }}"}
+   → Antwort: {"flow_id": "...", "type": "menu", "menu_options": ["sensor", ...]}
+
+   # Schritt 2: Typ wählen
+   POST /api/config/config_entries/flow/{flow_id}
+   Body: {"next_step_id": "sensor"}
+
+   # Schritt 3: Formular ausfüllen
+   POST /api/config/config_entries/flow/{flow_id}
+   Body: {"name": "Mein Sensor", "state": "{{ states('sensor.quelle') }}"}
 ```
    Sofort live. Löschen: `DELETE /api/config/config_entries/entry/<entry_id>` → 200 OK.
+   Abbrechen: `DELETE /api/config/config_entries/flow/{flow_id}` (verifiziert LB 22.03.2026).
 
 ### 4.5 Numerische Template-Sensoren
 
