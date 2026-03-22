@@ -20,11 +20,15 @@ description: >
 
   NIEMALS RATEN — bei Unklarheit live testen oder API verifizieren.
 metadata:
-  version: "2.61.0"
+  version: "2.62.0"
   maintainer: "Claude (via PR, nach Rücksprache mit Mirko)"
   workflow: "Änderungsbedarf → PR auf Patch76/ha-betriebshandbuch → Mirko mergt → nächste Session zieht automatisch. Jede inhaltliche Änderung: Version + Changelog im selben Commit (→ §0 Skill-Pflege)."
   source: "Verifiziert an HA 2026.3.0 — aus claude.md + Live-Tests 08.03.2026"
   changelog: >
+    2.62.0 (22.03.2026): references/github.md DOM-Reply-Muster überarbeitet —
+      safeInit() mit window.confirm-Override + display:none, 4-stufiger XPath-Lookup
+      für lazy-loaded Threads, React-konformer Textarea-Fill via execCommand,
+      sicherer Submit-Button-Selektor, Delete-Flow dokumentiert. Verifiziert 22.03.2026.
     2.61.0 (22.03.2026): references/meta.md §22.2 — Hinweis auf erlaubte
       Zusatzabschnitte zwischen ⑥ und Offene Punkte ergänzt. Template-Drift
       zwischen §22.1 und realer claude.md (doppeltes ⑥, ⑧ statt ⑦) damit
