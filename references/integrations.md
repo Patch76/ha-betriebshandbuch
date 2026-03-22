@@ -244,7 +244,7 @@ Gilt für beide Instanzen (LB und RBO).
 
 | Instanz | URL |
 |---------|-----|
-| LB | https://fobaqcy4uh4vovo8dtyvkqxq5uyh7fmj.ui.nabu.casa/app/9cf1ea8f_mqtt_explorer |
+| LB | instanzspezifisch — im SI/AW dokumentiert |
 | RBO | Im RBO Add-on-Panel |
 
 **Zugangsdaten:** User: `mqtt` · Passwort: `local`
@@ -335,12 +335,11 @@ Input Mode muss auf **Button/Taster** stehen damit Event-Entity entsteht.
 | Kurz vor Alarmzeit `unavailable` | Sensor kann unmittelbar vor Auslösung seinen State verlieren |
 
 > **`disabled_by: integration`:** Die Companion-App-Integration deaktiviert den Sensor standardmäßig.
-> Aktivierung via REST:
-> ```bash
-> PUT /api/config/entity_registry/entry/<entry_id>
-> Body: {"disabled_by": null}
+> Aktivierung — kein REST-Endpunkt (HTTP 404, verifiziert LB 22.03.2026); nur via WebSocket oder MCP-Tool:
 > ```
-> Oder: `ha_set_entity(entity_id="sensor.<gerät>_next_alarm", disabled_by=null)`.
+> WS: {"type": "config/entity_registry/update", "entity_id": "sensor.<gerät>_next_alarm", "disabled_by": null}
+> ```
+> Oder: `ha_set_entity(entity_id="sensor.<gerät>_next_alarm", disabled_by=null)` [MCP, nutzt intern WebSocket].
 > Nach Aktivierung: 60-Sekunden-Wartezeit, dann HA-Reload der Companion-App-Integration.
 > `sensor.<gerät>_last_update_trigger` ist ebenfalls `disabled_by: integration` — zusammen aktivieren.
 
@@ -373,7 +372,7 @@ conditions:
       {{ as_timestamp(states('sensor.<gerät>_next_alarm')) > as_timestamp(now()) }}
 ```
 
-### 16.4 Typisches Automationsmuster
+### 26.4 Typisches Automationsmuster
 ```yaml
 - id: "wecker_vorkonditionierung"
   alias: "Vorkonditionierung 10 min vor Wecker"
